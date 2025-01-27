@@ -1,0 +1,27 @@
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'// apply plugin: 'maven' 
+
+repositories {
+    mavenLocal()
+}
+
+group = 'pe.com.s2o.clinica'
+version = '1.0'
+
+dependencies {
+    
+    // https://mvnrepository.com/artifact/org.apache.axis/axis
+	implementation group: 'org.apache.axis', name: 'axis', version: '1.4'
+	implementation group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-gson:0.11.5'
+    implementation 'javax.xml.ws:jaxws-api:2.3.1'
+    implementation 'com.sun.xml.ws:jaxws-rt:2.3.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+jar {
+    manifest {
+        attributes('Implementation-Title': project.name,
+                   'Implementation-Version': project.version)
+    }
+}

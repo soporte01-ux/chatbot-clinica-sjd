@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="jboss-websocket-api_1.1_spec-2.0.0.Final">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Desktop/wildfly-24.0.1.Final/modules/system/layers/base/javax/websocket/api/main/jboss-websocket-api_1.1_spec-2.0.0.Final.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

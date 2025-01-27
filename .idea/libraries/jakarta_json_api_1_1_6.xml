@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="jakarta.json-api-1.1.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Desktop/wildfly-24.0.1.Final/modules/system/layers/base/javax/json/api/main/jakarta.json-api-1.1.6.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/wildfly-24.0.1.Final/modules/system/layers/base/javax/ejb/api/main/jboss-ejb-api_3.2_spec-2.0.0.Final.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/wildfly-24.0.1.Final/modules/system/layers/base/javax/json/bind/api/main/jakarta.json.bind-api-1.0.2.jar!/" />
+      <root url="jar://$USER_HOME$/Desktop/wildfly-24.0.1.Final/modules/system/layers/base/javax/ws/rs/api/main/jboss-jaxrs-api_2.1_spec-2.0.1.Final.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

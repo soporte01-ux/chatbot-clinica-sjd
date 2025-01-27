@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="app-support">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../SVN-Luxor/app-util/App-Agenda/lib/app-support.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../SVN-Luxor/app-util/App-Agenda/lib/s2o-util-meta.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../SVN-Luxor/app-util/App-Agenda/lib/s2o-util-rs-client.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../SVN-Luxor/app-util/App-Agenda/lib/postgresql-9.4.1212.jre6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
