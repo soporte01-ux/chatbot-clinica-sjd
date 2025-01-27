@@ -30,17 +30,11 @@ public class GlobalSitedsConstants {
 	public static final String SITEDS_ENTIDAD_VINCULADA = SITEDS_BASE + "/sofia-ws-common/rs/srs/qoEntidadVinculada";
 	public static final String SITEDS_ASEGURADO_NOMBRE = SITEDS_BASE + "/sofia-ws-common/rs/srs/qlAseguradoPorNombre";
 	public static final String SITEDS_ASEGURADO_CODIGO = SITEDS_BASE + "/sofia-ws-common/rs/srs/qoAseguradoPorCodigo";
+	public static final String SITEDS_ASEGURADO_CONDICIONES_MEDICAS = SITEDS_BASE + "/sofia-ws-common/rs/srs/qlCondicionMedica";
 	public static final String SITEDS_OBSERVACIONES = SITEDS_BASE + "/sofia-ws-common/rs/srs/qoObservaciones";
 	public static final String SITEDS_PROCEDIMIENTOS = SITEDS_BASE + "/sofia-ws-common/rs/srs/qlProcedimientos";
 	public static final String SITEDS_AUTORIZACION = SITEDS_BASE + "/sofia-ws-common/rs/srs/qoSolicitudAutorizacion";
 	public static final String SITEDS_TOKEN = "1tFTQwISn4c=";
 	public static final String SITEDS_ADMISION = "29288258";
-	
-	
-	
-	
-
-
-	
 	
 }

@@ -305,6 +305,56 @@ public class RsSiteds {
         String coEspecialidad = "";
         
         
+        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\"}", 
+        		GlobalSitedsConstants.SITEDS_NONCE,
+        		GlobalSitedsConstants.SITEDS_PASSWORD,
+        		GlobalSitedsConstants.SITEDS_USER, 
+        		GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
+ 				 idReceptor, 
+ 				 tiDoPaciente, 
+ 				 nuDoPaciente, 
+ 				 coAfPaciente, 
+ 				 coProducto, 
+ 				 deProducto,
+ 				 nuPlan, 
+ 				 tiCaContratante, 
+ 				 noPaContratante, 
+ 				 noContratante, 
+ 				 noMaContratante, 
+ 				 tiDoContratante, 
+ 				 idReContratante, 
+ 				 coReContratante
+ 			);
+			try {
+		        System.out.println("JSON CONDICIONES MEDICAS: " + inputJson);
+				Map<String, String> headers = new HashMap<String, String>();
+		        headers.put("Content-Type", "application/json; charset=utf-8");
+		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
+		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, headers);
+		        
+		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CONDICIONES_MEDICAS, inputJson, Map.of(
+	                    "Content-Type", "application/json; charset=utf-8",
+	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
+	                ));
+		        
+		        response = responseData.getResponseBody();
+		        System.out.println("RESPONSE CONDICIONES MEDICAS: " + response);
+				
+			} catch (Exception e) {
+	            throw UtilResponse.rsException(Response.Status.BAD_REQUEST, "Error al consultar servicio qlCondicionMedica.");
+			}
+			
+  	  
+			if(responseData.getStatusCode() == 500) {
+				throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio qlCondicionMedica.");
+			}
+			
+			  jsonReader = Json.createReader(new StringReader(response));
+			  JsonArray jsonArrayCondiciones = jsonReader.readArray();
+		  	  //jsonObject = jsonReader.readObject();
+		  	  
+		  	  
+        
         inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\"}", 
         		GlobalSitedsConstants.SITEDS_NONCE,
         		GlobalSitedsConstants.SITEDS_PASSWORD,
@@ -496,7 +546,7 @@ public class RsSiteds {
   	  mapResponse.put("descripcion", "Se obtuvieron los resultados");
   	  mapResponse.put("informacionObtenida", nuevoJsonObject);
   	  mapResponse.put("informacionFormateada", mapAsegurado);
-  	  
+  	  mapResponse.put("informacionCondiciones", jsonArrayCondiciones);
   	  return mapResponse;
     }
     
