@@ -34,6 +34,8 @@ public class GlobalSitedsConstants {
 	public static final String SITEDS_OBSERVACIONES = SITEDS_BASE + "/sofia-ws-common/rs/srs/qoObservaciones";
 	public static final String SITEDS_PROCEDIMIENTOS = SITEDS_BASE + "/sofia-ws-common/rs/srs/qlProcedimientos";
 	public static final String SITEDS_AUTORIZACION = SITEDS_BASE + "/sofia-ws-common/rs/srs/qoSolicitudAutorizacion";
+	public static final String SITEDS_ACREDITACION = SITEDS_BASE + "/sofia-ws-common/rs/srs/qoAcreditacion";
+	public static final String SITEDS_ENVIARRECIBIR = SITEDS_BASE + "/sofia-ws-common/rs/cola/qoEnviarRecibir";
 	public static final String SITEDS_TOKEN = "1tFTQwISn4c=";
 	public static final String SITEDS_ADMISION = "29288258";
 	

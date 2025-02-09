@@ -96,25 +96,7 @@ import pe.com.s2o.clinica.utils.HttpRequestUtil.HttpResponse;
 @Stateless
 @LocalBean
 public class RsWhatsapp {
-
-	private static final String VERIFY_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MzY4MzU2MTgsImV4cCI6MTc2ODM3MTYxOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.NGXtephaYXdLxxPHHKK1GTvX9xF0d1E3YWyYCiLN4D0";
-	private static final String ACCESS_TOKEN  = "EAAHAX9FaMMoBO7aUq7V6HsZC3gkHMl5BxC9NiTxon57LyO3IzrSG6xp9jUUQ4PWgGlIjb5UllybHXmiZCq8TKdiexgLssxP81HQo0kxNea9f6Sd3SJUZAIT4ctFgqFPZAtGgcvndM4FBu3rdkPkZBj6VQwgEqTei8gTkqCvCmrZC7NtxIhCURf0j5qgDUPmrtTdQZDZD";
 	
-	private static final String PHONE_NUMBER_ID = "463180813536065";
-	//private static final String PHONE_NUMBER_ID = "401761589696752";
-	private static final String ENDPOINT_CITAS = "http://localhost:8085/lib/rs/citas/v1/";
-	//private static final String END_POINT_URL = "https://sofia.s2o.pe/agenda";
-	private static final String END_POINT_URL = "http://localhost:8085/lib";
-	
-	/*private static final String SECRET_KEY = "sk_live_f9d01f8a37a1ed64";
-	private static final String PHONE_NUMBER_ID = "401761589696752";
-	private static final String ENDPOINT_PAGOS = "https://ligalcc.net.pe/checkout-wsp";
-	private static final String ENDPOINT_CITAS = "https://sofia.s2o.pe/agenda/rs/citas/v1/";
-	private static final String END_POINT_URL = "https://sofia.s2o.pe/agenda";*/
-
-	private static final String secret = "royalsystem12082022";
-	private static final String appUser = "WhatsappBot";
-	private static final Key hmacKey = new SecretKeySpec(Base64.getDecoder().decode(secret), SignatureAlgorithm.HS256.getJcaName());
 	private static final ConcurrentHashMap<String, ConversationSession> userConversationState = new ConcurrentHashMap<>();
     private static final long SESSION_TIMEOUT_MINUTES = 10 * 60;   
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -132,7 +114,7 @@ public class RsWhatsapp {
     @Path("/webhookCli")
     public Response verifyWebhook(@QueryParam("hub.mode") String mode, @QueryParam("hub.challenge") String challenge, @QueryParam("hub.verify_token") String verifyToken) {
     	
-    	if ("subscribe".equals(mode) && VERIFY_TOKEN.equals(verifyToken)) {
+    	if ("subscribe".equals(mode) && GlobalConstants.API_VERIFY_TOKEN.equals(verifyToken)) {
     		return Response.ok(challenge).build();
     	} else {
     		return Response.status(Response.Status.FORBIDDEN).build();
@@ -174,232 +156,12 @@ public class RsWhatsapp {
         }
     }
     
-    public void disableSSLValidation() {
-        try {
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }
-            };
-
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-            HostnameVerifier allHostsValid = (hostname, session) -> true;
-            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
     public static void main(String[] args) {
-		String response = "";
-		HttpResponse responseData = null;
-		JsonReader jsonReader = null;
-		JsonObject jsonObject = null;  	       
-		JsonArray jsonArray = null;
-		try {
-			//String inputJson = String.format("{\"codIafa\":\"%s\",\"informacionSeguro\":%s,\"informacionPersonaSeguro\":%s}", codIafa, informacionSeguro, informacionPersona);
-			String inputJson = "{\r\n"
-					+ "	\"codIafa\": \"20001\",\r\n"
-					+ "	\"informacionSeguro\": {\r\n"
-					+ "		\"apPaternoPaciente\": \"SIWA\",\r\n"
-					+ "		\"apMaternoPaciente\": \"DERAS\",\r\n"
-					+ "		\"noPaciente\": \"KUEBER\",\r\n"
-					+ "		\"coAfPaciente\": \"3675355\",\r\n"
-					+ "		\"caRemitente\": \"2\",\r\n"
-					+ "		\"userRemitente\": \"X\",\r\n"
-					+ "		\"passRemitente\": \"X\",\r\n"
-					+ "		\"feUpFoto\": \"00000000\",\r\n"
-					+ "		\"caReceptor\": \"2\",\r\n"
-					+ "		\"nuRucReceptor\": \"20162580672\",\r\n"
-					+ "		\"caPaciente\": \"1\",\r\n"
-					+ "		\"coEsPaciente\": \"1\",\r\n"
-					+ "		\"tiDoPaciente\": \"1\",\r\n"
-					+ "		\"nuDoPaciente\": \"40581340\",\r\n"
-					+ "		\"nuIdenPaciente\": \"3675355\",\r\n"
-					+ "		\"nuContratoPaciente\": \"\",\r\n"
-					+ "		\"nuPoliza\": \"0000013801\",\r\n"
-					+ "		\"nuCertificado\": \"\",\r\n"
-					+ "		\"coTiPoliza\": \"1\",\r\n"
-					+ "		\"coProducto\": \"01\",\r\n"
-					+ "		\"deProducto\": \"AMC REGULAR\",\r\n"
-					+ "		\"nuPlan\": \"111378\",\r\n"
-					+ "		\"tiPlanSalud\": \"7\",\r\n"
-					+ "		\"coMoneda\": \"1\",\r\n"
-					+ "		\"coParentesco\": \"1\",\r\n"
-					+ "		\"soBeneficio\": \"S\",\r\n"
-					+ "		\"nuSoBeneficio\": \"Q00\",\r\n"
-					+ "		\"feNacimiento\": \"19800509\",\r\n"
-					+ "		\"genero\": \"1\",\r\n"
-					+ "		\"esMarital\": \"\",\r\n"
-					+ "		\"feIniVigencia\": \"20150701\",\r\n"
-					+ "		\"feFinVigencia\": \"00000000\",\r\n"
-					+ "		\"tiCaContratante\": \"2\",\r\n"
-					+ "		\"noPaContratante\": \"COMPAÑIA MINERA ANTAPACCAY S.A.\",\r\n"
-					+ "		\"noContratante\": \"\",\r\n"
-					+ "		\"noMaContratante\": \"\",\r\n"
-					+ "		\"tiDoContratante\": \"8\",\r\n"
-					+ "		\"idReContratante\": \"XX5\",\r\n"
-					+ "		\"coReContratante\": \"20114915026\",\r\n"
-					+ "		\"caTitular\": \"1\",\r\n"
-					+ "		\"noPaTitular\": \"SIWA\",\r\n"
-					+ "		\"noTitular\": \"KUEBER\",\r\n"
-					+ "		\"coAfTitular\": \"3675355\",\r\n"
-					+ "		\"noMaTitular\": \"DERAS\",\r\n"
-					+ "		\"tiDoTitular\": \"1\",\r\n"
-					+ "		\"nuDoTitular\": \"40581340\",\r\n"
-					+ "		\"feInsTitular\": \"20150701\",\r\n"
-					+ "		\"detalleCobertura\": [\r\n"
-					+ "			{\r\n"
-					+ "				\"coberturaCodigo\": \"4100\",\r\n"
-					+ "				\"carenciaFechaFin\": \"00000000\",\r\n"
-					+ "				\"cantidad\": 1.0,\r\n"
-					+ "				\"deducible\": 0.0,\r\n"
-					+ "				\"coaseguro\": 100.0,\r\n"
-					+ "				\"infBeneficio\": \"1\",\r\n"
-					+ "				\"nuCobertura\": \"4\",\r\n"
-					+ "				\"beMaxInicial\": \"0\",\r\n"
-					+ "				\"moCobertura\": \"0\",\r\n"
-					+ "				\"coInRestriccion\": \"1\",\r\n"
-					+ "				\"idProducto\": \"2\",\r\n"
-					+ "				\"coTiCobertura\": \"4\",\r\n"
-					+ "				\"coSubTiCobertura\": \"100\",\r\n"
-					+ "				\"msgObs\": \"\",\r\n"
-					+ "				\"msgConEspeciales\": \"\",\r\n"
-					+ "				\"coTiMoneda\": \"1\",\r\n"
-					+ "				\"coCalServicio\": \"VS\",\r\n"
-					+ "				\"canCalServicio\": \"0\",\r\n"
-					+ "				\"flagCaGarantia\": \"0\",\r\n"
-					+ "				\"deflagCaGarantia\": \"\",\r\n"
-					+ "				\"feFinEspera\": \"00000000\",\r\n"
-					+ "				\"coPagoFijo\": \"0\",\r\n"
-					+ "				\"coPagoVariable\": \"100\",\r\n"
-					+ "				\"canServicio\": \"1\"\r\n"
-					+ "			}\r\n"
-					+ "		],\r\n"
-					+ "		\"idCorrelativo\": null,\r\n"
-					+ "		\"noTransaccion\": null,\r\n"
-					+ "		\"idReceptor\": null,\r\n"
-					+ "		\"idRemitente\": null,\r\n"
-					+ "		\"nuControl\": null,\r\n"
-					+ "		\"nuControlIST\": null,\r\n"
-					+ "		\"hoTransaccion\": \"09:42:50\",\r\n"
-					+ "		\"idTransaccion\": \"271\"\r\n"
-					+ "	},\r\n"
-					+ "	\"informacionPersonaSeguro\": {\r\n"
-					+ "		\"tipoDeAtencion\": 4,\r\n"
-					+ "		\"feIniVigencia\": \"01/07/2015\",\r\n"
-					+ "		\"coberturaDescripcion\": \"CONSULTA AMBULATORIA\",\r\n"
-					+ "		\"descProducto\": \"\",\r\n"
-					+ "		\"obsAseguradoAdicional\": \"\",\r\n"
-					+ "		\"obsAsegurado\": \" Se cubre procedimiento de extracción de muela del juicio.La cobertura de psiquiatría es estríctamente sólo para afiliados titulares.La cobertura de Monturas, Cristales o Resinas y Lentes de Contacto aplica para todas las sedes de TOPSA RETAIL (Vision Center y Econo Lentes).Esquema de vacunación a ser aplicadas en el Centro de Vacunación de la APEPs (Asociación de EPS) - Clínica Javier Prado, Calle Los Geranios 160  a la espalda de la Clinica - tel. 440 2000 anexo 436.La aplicación de vacunas en el Centro de la APEPS dependerá del abastecimiento del Ministerio de Salud y el protocolo se actualizará según las directivas del MINSA.  Detalle de exclusiones y condiciones de continuidad y/o prexistencias figuran en el plan de salud.NOTA: Solo en Provincias, los medicamentos serán reembolsados sin son adquiridos en cualquier farmacia (no necesariamente de cadena).\",\r\n"
-					+ "		\"tipoPaciente\": 2,\r\n"
-					+ "		\"feFinVigencia\": \"\",\r\n"
-					+ "		\"edadPaciente\": 44,\r\n"
-					+ "		\"feAfiliacion\": \"01/07/2015\",\r\n"
-					+ "		\"procedimientosCobertura\": {\r\n"
-					+ "			\"detalleProcEspRes\": {\r\n"
-					+ "				\"descripcion\": \"EXCEPCIÓN A LA CARENCIA\",\r\n"
-					+ "				\"tipo\": \"CA\",\r\n"
-					+ "				\"detalleCondicion\": [\r\n"
-					+ "					{\r\n"
-					+ "						\"descripcion\": \"ACCIDENTE CEREBROVASCULAR\",\r\n"
-					+ "						\"tipo\": \"CA\",\r\n"
-					+ "						\"fechaVigFin\": \"-0001-11-28T05:00:00Z[UTC]\",\r\n"
-					+ "						\"observacion\": \"\",\r\n"
-					+ "						\"identificador\": \"CF0002\"\r\n"
-					+ "					},\r\n"
-					+ "					{\r\n"
-					+ "						\"descripcion\": \"ANEURISMA\",\r\n"
-					+ "						\"tipo\": \"CA\",\r\n"
-					+ "						\"fechaVigFin\": \"-0001-11-28T05:00:00Z[UTC]\",\r\n"
-					+ "						\"observacion\": \"\",\r\n"
-					+ "						\"identificador\": \"CI0003\"\r\n"
-					+ "					},\r\n"
-					+ "					{\r\n"
-					+ "						\"descripcion\": \"INFARTO DE MIOCARDIO\",\r\n"
-					+ "						\"tipo\": \"CA\",\r\n"
-					+ "						\"fechaVigFin\": \"-0001-11-28T05:00:00Z[UTC]\",\r\n"
-					+ "						\"observacion\": \"\",\r\n"
-					+ "						\"identificador\": \"CI0004\"\r\n"
-					+ "					},\r\n"
-					+ "					{\r\n"
-					+ "						\"descripcion\": \"APENDICITIS\",\r\n"
-					+ "						\"tipo\": \"CA\",\r\n"
-					+ "						\"fechaVigFin\": \"-0001-11-28T05:00:00Z[UTC]\",\r\n"
-					+ "						\"observacion\": \"\",\r\n"
-					+ "						\"identificador\": \"CK0005\"\r\n"
-					+ "					},\r\n"
-					+ "					{\r\n"
-					+ "						\"descripcion\": \"TORSION TESTICULAR\",\r\n"
-					+ "						\"tipo\": \"CA\",\r\n"
-					+ "						\"fechaVigFin\": \"-0001-11-28T05:00:00Z[UTC]\",\r\n"
-					+ "						\"observacion\": \"\",\r\n"
-					+ "						\"identificador\": \"CN0006\"\r\n"
-					+ "					},\r\n"
-					+ "					{\r\n"
-					+ "						\"descripcion\": \"ACCIDENTES\",\r\n"
-					+ "						\"tipo\": \"CA\",\r\n"
-					+ "						\"fechaVigFin\": \"-0001-11-28T05:00:00Z[UTC]\",\r\n"
-					+ "						\"observacion\": \"\",\r\n"
-					+ "						\"identificador\": \"CS0007\"\r\n"
-					+ "					}\r\n"
-					+ "				]\r\n"
-					+ "			},\r\n"
-					+ "			\"detalleCoPagoDife\": [\r\n"
-					+ "				{\r\n"
-					+ "					\"frecuencia\": \"0\",\r\n"
-					+ "					\"tiempo\": \"0\",\r\n"
-					+ "					\"genero\": \"F/M\",\r\n"
-					+ "					\"coAseguro\": \"100\",\r\n"
-					+ "					\"procedimiento\": \"\",\r\n"
-					+ "					\"cpFijo\": \"0  POR ATENCIÓN\",\r\n"
-					+ "					\"observacion\": \"\",\r\n"
-					+ "					\"identificador\": \"1\",\r\n"
-					+ "					\"deducible\": \"0\",\r\n"
-					+ "					\"cpVariable\": \"100 %\"\r\n"
-					+ "				}\r\n"
-					+ "			]\r\n"
-					+ "		}\r\n"
-					+ "	}\r\n"
-					+ "}";
-			Map<String, String> headers = new HashMap<String, String>();
-			headers.put("Content-Type", "application/json; charset=utf-8");
-			System.out.println("INPUT JSON AUTORIZACION WSP: " + inputJson);
-			//responseData  = HttpRequestUtil.sendRequest("POST", END_POINT_URL + "/rs/siteds/v1/autorizacionSiteds", inputJson, headers);
-	        responseData = RsSiteds.sendPostRequest(END_POINT_URL + "/rs/siteds/v1/autorizacionSiteds", inputJson, Map.of(
-                    "Content-Type", "application/json; charset=utf-8"
-                ));
-	        
-			response = responseData.getResponseBody();
-			if(response.contains("\"nroAutorizacion\":null")) {
-				return;
-			}
-			
-			//String nuAutorizacion = jsonObject.getString("nroAutorizacion");
-			
-			System.out.println(response);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			return;
-		}
     	
     }
     
     private void updateUserSession(String from, ConversationSession session) {
         session.updateLastActivity();
-        userConversationState.put(from, session);
     }
     
     private ConversationSession getUserSessionFrom(String from) {
@@ -443,11 +205,6 @@ public class RsWhatsapp {
             
             if (session.isExpired() && !session.isConversationEnded()) {
                 sendSessionExpiredMessage(entry.getKey());
-                Map<String, Object> conversationState = session.state;
-                if (conversationState.containsKey("codeVenta")) {
-                    String codeVenta = conversationState.get("codeVenta").toString();
-                    eliminarVentaWsp(codeVenta);
-                }
                 session.endConversation();
                 return true;
             }
@@ -519,10 +276,10 @@ public class RsWhatsapp {
                 		processHistorialCita(from, userMessage, conversationState);
                 		break;
                 	case "obtener_mes":
-                		processObtenerCitas(from, userMessage, conversationState);
+                		//processObtenerCitas(from, userMessage, conversationState);
                 		break;
                 	case "registrar_otro_cliente":
-                		processNuevoCliente(from, userMessage, conversationState);
+                		//processNuevoCliente(from, userMessage, conversationState);
                 		break;
                 	case "encargado":
                 		proccessHablarEncargado(from, userMessage, conversationState);
@@ -596,25 +353,25 @@ public class RsWhatsapp {
                     	break;
                     case "retornar":
                     	if(handleEmptyConversationIsFull(from, conversationState)) {
-                        	if(conversationState.get("codeVenta") != null) {
+                        	/*if(conversationState.get("codeVenta") != null) {
                         		String codeVenta = conversationState.get("codeVenta").toString();
                         		eliminarVentaWsp(codeVenta);
-                        	}
+                        	}*/
                     		handlePreviousStep(from, conversationState);
                     	}
                     	break;
                     case "realizar_venta":
                     	if(handleEmptyConversationIsFull(from, conversationState)) {
-                    		boolean pago = validarPago(from, conversationState, session);
+                    		/*boolean pago = validarPago(from, conversationState, session);
                     		if(pago) {
                     			sendRegistroCita(from, conversationState, session);
-                    		}
+                    		}*/
                     	}
                     	break;
                     case "terminar_sesion":
                     	if(conversationState.get("codeVenta") != null) {
                     		String codeVenta = conversationState.get("codeVenta").toString();
-                    		eliminarVentaWsp(codeVenta);
+                    		//eliminarVentaWsp(codeVenta);
                     	}
                     	sendTerminoDeSesion(from, session);
                     	break;
@@ -705,12 +462,12 @@ public class RsWhatsapp {
             case "sub_reserva_horario":
             	conversationState.put("modulo", "sub_reserva_fecha");
                 sendMessage(from, "🔁 Retornando a la selección de fecha.");
-                sendListFechasXMedico(from, token, conversationState);
+                sendListFechasXMedico(from, token, conversationState, true);
                 break;
             case "vista_horarios":
             	conversationState.put("modulo", "consulta_horarios");
                 sendMessage(from, "🔁 Retornando a la selección de fecha.");
-                sendListFechas(from, token, conversationState);
+                //sendListFechas(from, token, conversationState);
                 break;
             case "consulta_horarios":
             	conversationState.put("modulo", "consulta_fecha");
@@ -816,15 +573,18 @@ public class RsWhatsapp {
             if (lstEsp != null && opcion >= 0 && opcion < lstEsp.size()) {
                 Map<String, Object> mapEspecialidad = (Map<String, Object>) lstEsp.get(opcion).get(userMessage);
                 conversationState.put("especialidad", mapEspecialidad);
+                boolean vistaCompleta = false;
     			if(conversationState.get("modulo").toString().equals("consulta_fecha")) {
     				conversationState.put("modulo", "consulta_horarios");
+    				vistaCompleta = false;
     			}
     			else {    				
     				conversationState.put("modulo", "sub_reserva_fecha");
+    				vistaCompleta = true;
     			}
     			System.out.println("MODULO RESERVA CITA:" + conversationState.get("modulo").toString());
                 String token = (String) conversationState.get("token");
-                sendListFechasXMedico(from, token, conversationState);
+                sendListFechasXMedico(from, token, conversationState, vistaCompleta);
             } else {
                 sendMessage(from, "❌ Opción no válida. Por favor, selecciona una opción de la lista.");
             }
@@ -844,7 +604,7 @@ public class RsWhatsapp {
             	String token = (String) conversationState.get("token");
     			if(conversationState.get("modulo").toString().equals("consulta_horarios")) {
     				conversationState.put("modulo", "vista_horarios");
-    				sendListHorariosVista(from, token, conversationState);
+    				//sendListHorariosVista(from, token, conversationState);
     			}
     			else {    				
     				conversationState.put("modulo", "sub_reserva_horario");
@@ -859,7 +619,7 @@ public class RsWhatsapp {
             sendMessage(from, "❌ Error al procesar la fecha seleccionada. Por favor, intenta de nuevo.");
         }
     }
-    
+  
     private void processSubReservaHorario(String from, String userMessage, Map<String, Object> conversationState) {
         try {
             int opcion = Integer.parseInt(userMessage) - 1;
@@ -881,7 +641,7 @@ public class RsWhatsapp {
         }
     }
     
-    private void processObtenerCitas(String from, String userMessage, Map<String, Object> conversationState) {
+    /*private void processObtenerCitas(String from, String userMessage, Map<String, Object> conversationState) {
         try {
             int opcion = Integer.parseInt(userMessage) - 1;
             List<Map<String, Object>> lstMeses = (List<Map<String, Object>>) conversationState.get("lstMeses");
@@ -902,7 +662,7 @@ public class RsWhatsapp {
             e.printStackTrace();
             sendMessage(from, "❌ Error al procesar el mes seleccionado. Por favor, intenta de nuevo.");
         }
-    }
+    }*/
     
     private void processSubReservaSeguro(String from, String userMessage, Map<String, Object> conversationState) {
         try {
@@ -1055,184 +815,6 @@ public class RsWhatsapp {
             sendMessage(from, "❌ Por favor, selecciona primero el tipo de documento.");
         }
     }
-   
-    private void processNuevoCliente(String from, String userMessage, Map<String, Object> conversationState) {
-    	String regex = "^\\d+$";
-    	String tipoDocumento = conversationState.get("docEmisionTipoGeneral").toString();
-    	String token = conversationState.get("token").toString();
-    	Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(userMessage);
-        if(matcher.find()){
-            String numeroDocumento = userMessage;
-            String tipoDocEmision = conversationState.get("tipoDocEmision").toString();
-            Set<String> documentosNoPermitidos = new HashSet<>(Arrays.asList("DNI", "CE", "PASAPORTE"));
-            if(tipoDocEmision.equals("factura") && documentosNoPermitidos.contains(tipoDocumento)) {
-            	sendMessage(from, "❌ No se puede emitir una factura con "+ tipoDocumento +".");
-            	return;
-            }
-            if (!validarDocumento(tipoDocumento, numeroDocumento)) {
-                sendMessage(from, "❌ El tipo y número de documento no son equivalentes.");
-                return;
-            }
-            
-            String inputJson = "";
-            String response = "";
-            JsonReader jsonReader = null;
-            JsonObject jsonObject = null;
-    		String cliente = "";
-    		if(tipoDocumento.equals("RUC")) {
-    			
-        		try {
-        			URL url = new URL(ENDPOINT_CITAS + "obtenerEmpresaSunat?nroRuc=" + numeroDocumento);
-        			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        			conn.setRequestMethod("GET");
-        			conn.setRequestProperty("Authorization", token);
-        			conn.setRequestProperty("Content-Type", "application/json");
-        			
-        			int responseCode = conn.getResponseCode();
-        			if (responseCode == HttpURLConnection.HTTP_OK) {
-        				System.out.println("Datos obtenidos");
-        				try (BufferedReader br = new BufferedReader(
-        						new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-        					StringBuilder responseBuilder = new StringBuilder();
-        					String responseLine;
-        					while ((responseLine = br.readLine()) != null) {
-        						responseBuilder.append(responseLine.trim());
-        					}
-        					response = responseBuilder.toString();
-        				}
-        			} else {
-        				System.out.println(url);
-        				System.out.println("Error al obtener los datos");
-        			}
-        			
-        			
-        		} catch (Exception e) {
-        			e.printStackTrace();
-        		}
-        		System.out.println("RESPONSE OBTENER CODIGO EMPRESA: " + response);
-        		jsonReader = Json.createReader(new StringReader(response));
-        		jsonObject = jsonReader.readObject();
-    			
-        		String razonSocial = jsonObject.getString("razonSocial");
-        		String estado = jsonObject.getString("estado");
-        		cliente = razonSocial;
-        		if(!estado.equals("ACTIVO")) {
-        			sendMessage(from, "❌ La empresa no se encuentra activa o no esta registrada.");
-        			return;
-        		}
-        		
-        		String direccion = jsonObject.getString("direccion");
-        		String ubigeo = jsonObject.getString("ubigeo");
-        		String nombreComercial = jsonObject.getString("nombreComercial");
-	      	  	  try {
-	  	    		inputJson = String.format("{\"direccionEmpresa\":\"%s\",\"nombreEmpresa\":\"%s\",\"nroRuc\":\"%s\",\"ubigeoEmpresa\":\"%s\"}",
-	  	    				direccion, nombreComercial, numeroDocumento, ubigeo);
-	  			  URL url = new URL(ENDPOINT_CITAS + "registrarEmpresa");
-	  	          HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	  	          connection.setRequestMethod("POST");
-	  	          connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-	  	          connection.addRequestProperty("Authorization", token);
-	  	          connection.setDoOutput(true);
-	  	          try (OutputStream os = connection.getOutputStream()) {
-	  	              byte[] input = inputJson.getBytes("utf-8");
-	  	              os.write(input, 0, input.length);
-	  	          }
-		  	          try (BufferedReader br = new BufferedReader(
-		  	                  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		  	              StringBuilder responseBuilder = new StringBuilder();
-		  	              String responseLine;
-		  	              while ((responseLine = br.readLine()) != null) {
-		  	                  responseBuilder.append(responseLine.trim());
-		  	              }
-		  	              response = responseBuilder.toString();
-		  	          }
-		  		  } catch (Exception e) {
-		  	          e.printStackTrace();
-		  		  }
-	      	  	conversationState.put("tipoDocCliente", 6);
-    		}
-    		else {
-	      	  	  Integer tipoDoc = 0;
-	      	  	  Integer tipoDocSiteds = 0;
-	      	  	  switch(tipoDocumento) {
-	      	  	  case "DNI":
-	      	  		  tipoDoc = 1;
-	      	  		tipoDocSiteds = 1;
-	      	  		  break;
-	      	  	  case "CE":
-	      	  		  tipoDoc = 4;
-	      	  		tipoDocSiteds = 2;
-	      	  		  break;
-	      	  	  case "PASAPORTE":
-	      	  		  tipoDoc = 7;
-	      	  		tipoDocSiteds = 3;
-	      	  		  break;
-	      	  		  
-	      	  	  }
-    			response = obtenerDatosSited(numeroDocumento, tipoDocSiteds);
-    			System.out.println("RESPONSE SITEDS: " + response);
-        		jsonReader = Json.createReader(new StringReader(response));
-        		jsonObject = jsonReader.readObject();
-        		String noPersona = jsonObject.getString("noPersona");
-	  	        String[] nombres = extraerNombres(noPersona);
-	  	        String nombre1 = nombres[0];
-	  	        String nombre2 = nombres[1];
-        		String apellidoM = jsonObject.isNull("apMaterno") ? "" : jsonObject.getString("apMaterno");
-        		String apellidoP = jsonObject.getString("apPaterno");
-        		String direccion = jsonObject.isNull("deDistrito") ? "" : jsonObject.getString("deDistrito");
-        		cliente = nombre1 + " " + obtenerPrimeraLetra(nombre2) + " " + apellidoP + " " +obtenerPrimeraLetra(apellidoM); 
-	      	  	  try {
-	  	    		inputJson = String.format("{\"perApMaterno\":\"%s\",\"perApPaterno\":\"%s\",\"perDireccion\":\"%s\",\"perEmail\":\"\",\"perNom1\":\"%s\",\"perNom2\":\"%s\",\"perNroDoc\":\"%s\",\"perTipoDoc\":%s,\"perGenero\":\"\",\"perNumCelular\":\"\",\"perFNacimiento\":null}",
-	  	    				apellidoM, apellidoP, direccion, nombre1, nombre2, numeroDocumento, 1);
-	  			  URL url = new URL(ENDPOINT_CITAS + "registrarPersona");
-	  	          HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	  	          connection.setRequestMethod("POST");
-	  	          connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-	  	          connection.addRequestProperty("Authorization", token);
-	  	          connection.setDoOutput(true);
-	  	          try (OutputStream os = connection.getOutputStream()) {
-	  	              byte[] input = inputJson.getBytes("utf-8");
-	  	              os.write(input, 0, input.length);
-	  	          }
-		  	          try (BufferedReader br = new BufferedReader(
-		  	                  new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-		  	              StringBuilder responseBuilder = new StringBuilder();
-		  	              String responseLine;
-		  	              while ((responseLine = br.readLine()) != null) {
-		  	                  responseBuilder.append(responseLine.trim());
-		  	              }
-		  	              response = responseBuilder.toString();
-		  	          }
-		  		  } catch (Exception e) {
-		  	          e.printStackTrace();
-		  		  }
-	          	conversationState.put("tipoDocCliente", tipoDoc);
-    			
-    		}
-    		jsonReader = Json.createReader(new StringReader(response));
-    		jsonObject = jsonReader.readObject();
-        	
-    		if (jsonObject.containsKey("personCod") && (tipoDocumento.equals("DNI") || tipoDocumento.equals("CE") || tipoDocumento.equals("PASAPORTE"))) {
-    		    Integer codCliente = jsonObject.getInt("personCod");
-    		    conversationState.put("codCliente", codCliente);
-    		} else if (jsonObject.containsKey("empresaCod") && tipoDocumento.equals("RUC")) {
-    		    Integer codCliente = jsonObject.getInt("empresaCod");
-    		    conversationState.put("codCliente", codCliente);
-    		} else {
-    		    sendMessage(from, "⚠️ ¡En caso de obtener este mensaje, enviar nuevamente el número de documento, si persiste el evnío contactate con un encargado!.");
-    		    return;
-    		}
-    		conversationState.put("nroDocCliente", numeroDocumento);
-        	conversationState.put("clienteNombre", cliente);        	
-        	conversationState.put("otroCliente", true);
-        	//conversationState.put("modulo", "");
-        	sendDetallesBFAndOtroUsuario(from, conversationState);
-        }
-        else {
-        	sendMessage(from, "❌ El formato de tipo y número de documento no son correctos.");
-        }
-    }
     
     private void proccessEncargado(String from, String userMessage, Map<String, Object> conversationState) {
     	try {
@@ -1382,7 +964,7 @@ public class RsWhatsapp {
 				Map<String, String> headers = new HashMap<String, String>();
 				headers.put("Content-Type", "application/json; charset=utf-8");
 				System.out.println("INPUT JSON AUTORIZACION WSP: " + inputJson);
-				responseData  = HttpRequestUtil.sendRequest("POST", END_POINT_URL + "/rs/siteds/v1/autorizacionSiteds", inputJson, headers);
+				responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_BASE_CLINICA_BOT + "/rs/siteds/v1/autorizacionSiteds", inputJson, headers);
 				response = responseData.getResponseBody();
 				if(response.contains("\"nroAutorizacion\":null")) {
 					sendMessageFinalizar(to, "No se pudo obtener el codigo de autorización, comunicate con un administrador.");
@@ -1409,7 +991,8 @@ public class RsWhatsapp {
     	//String jsonPago = (String) mapDatos.get("jsonReserva");
     	String jsonPago = jsonInput(mapReserva);
     	String link =  GlobalConstants.API_PAGO_NIUBIZ + "?paymentInfo="+ URLEncoder.encode(encrypt(jsonPago)) + "&sessionToken=" + token + "&currentUnixTime=" + unixTimeSeconds;
-    	link = obtenerUrlAcortada(link);
+    	System.out.println("LINK: " + link);
+    	link = obtenerUrlAcortada(to, link);
     	String requestBody = "{\r\n"
     			+ "    \"messaging_product\": \"whatsapp\",\r\n"
     			+ "    \"recipient_type\": \"individual\",\r\n"
@@ -1464,7 +1047,7 @@ public class RsWhatsapp {
 			headers.put("Content-Type", "application/json; charset=utf-8");
 			System.out.println("INPUT JSON AUTORIZACION WSP: " + inputJson);
 			//responseData  = HttpRequestUtil.sendRequest("POST", END_POINT_URL + "/rs/siteds/v1/autorizacionSiteds", inputJson, headers);
-	        responseData = RsSiteds.sendPostRequest(END_POINT_URL + "/rs/siteds/v1/autorizacionSiteds", inputJson, Map.of(
+	        responseData = RsSiteds.sendPostRequest(GlobalConstants.API_BASE_CLINICA_BOT + "/rs/siteds/v1/autorizacionSiteds", inputJson, Map.of(
                     "Content-Type", "application/json; charset=utf-8"
                 ));
 			response = responseData.getResponseBody();
@@ -1617,158 +1200,7 @@ public class RsWhatsapp {
 		}
     }
     
-    public void sendCitas(String to, Integer codPersona, String token, String month, String year, String tipoHistorial,  Map<String, Object> mapDatos) {
-    	try {	
-    		String response = "";
-    		String Url = "";
-    		if(tipoHistorial.equals("general")) {
-    			Url = ENDPOINT_CITAS + "historialCitas?codPersona="+ codPersona +"&year="+ year + "&month=" + month;
-    		}else {
-    			Url = ENDPOINT_CITAS + "historialCitas?codPersona="+ codPersona +"&year="+ year + "&month=" + month + "&codEstado=2";
-    		}
-    		try {
-    			month = month.replace("\"", "");
-    			year = year.replace("\"", "");
-    			URL url = new URL(Url);
-    			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    			conn.setRequestMethod("GET");
-    			conn.setRequestProperty("Authorization", token);
-    			conn.setRequestProperty("Content-Type", "application/json");
-    			System.out.println(token);
-    			int responseCode = conn.getResponseCode();
-    			System.out.println(responseCode);
-    			if (responseCode == HttpURLConnection.HTTP_OK) {
-    				System.out.println("Datos obtenidos");
-    				try (BufferedReader br = new BufferedReader(
-    						new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-    					StringBuilder responseBuilder = new StringBuilder();
-    					String responseLine;
-    					while ((responseLine = br.readLine()) != null) {
-    						responseBuilder.append(responseLine.trim());
-    					}
-    					response = responseBuilder.toString();
-    				}
-    			} else {
-    				System.out.println(url);
-    				System.out.println("Error al obtener los datos");
-    			}
-    			
-    			
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-    		
-    		JsonReader jsonReader = Json.createReader(new StringReader(response));
-    		JsonObject jsonObject = jsonReader.readObject();
-    		JsonArray jsonArray = jsonObject.getJsonArray("listaDeCitas");
-    		String requestBody = "";
-    		if(jsonArray.size() > 0) {
-    			String citas = "";
-    			for (int i = 0; i < jsonArray.size() && i < 3; i++) {
-					JsonObject jsonObjectArray = jsonArray.getJsonObject(i);
-					System.out.println(jsonObjectArray);
-					String[] fecha = jsonObjectArray.getString("cmediFechaCita").split("T");
-					String estado = jsonObjectArray.getString("cmediEstado");
-					String especialidad = jsonObjectArray.getString("cmediEspecialidad");
-					Integer duracion = jsonObjectArray.getInt("cmediDuracion");
-					String fechaFormateada = formatearFechaCita(fecha[0]);
-	    			String icono = "";
-	    			if(jsonObjectArray.getString("cmediProfGenero").equals("M")) {
-	    				icono = "👨‍⚕️";
-	    			}else {
-	    				icono = "👩‍⚕️";
-	    			}
-					String medico = jsonObjectArray.getString("cmediProfGenero").equals("F") ? "Dra. " + jsonObjectArray.getString("cmediProfesional") : "Dr. " + jsonObjectArray.getString("cmediProfesional");
-					citas += "╔═════════════════════════════╗\\n"
-							+ "   🗓️ *Fecha: "+ fechaFormateada +"*\\n"
-							+ "   🏥 *Especialidad: "+especialidad+"*\\n"
-							+ "   "+icono +" *Especialista: "+ medico +"*\\n"
-							+ "   🕐 *Horario: "+ fecha[1].split("Z")[0] +"*\\n"
-							+ "   📊 *Estado: "+ estado +"*             \\n"
-							+ "   ⏳ *Duración cita: "+ duracion +" min.*\\n"
-							+ "╚═════════════════════════════╝\\n\\n";
-				}
-    			/*requestBody = "{\r\n"
-        				+ "    \"messaging_product\": \"whatsapp\",    \r\n"
-        				+ "    \"recipient_type\": \"individual\",\r\n"
-        				+ "    \"to\": \"" + to +  "\",\r\n"
-        				+ "    \"type\": \"text\",\r\n"
-        				+ "    \"text\": {\r\n"
-        				+ "        \"body\": \"A continuación, te mostramos tus ultimas *5 citas del mes*.\\n\\n"+ citas +" \\nSi deseas volver a los meses escribe *retornar*. ↩️\"\r\n"
-        				+ "    }\r\n"
-        				+ "}";*/
-    			requestBody = "{\r\n"
-        				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-        				+ "    \"recipient_type\": \"individual\",\r\n"
-        				+ "    \"to\": \""+ to +"\",\r\n"
-        				+ "    \"type\": \"interactive\",\r\n"
-        				+ "    \"interactive\": {\r\n"
-        				+ "        \"type\": \"button\",\r\n"
-        				+ "        \"body\": {\r\n"
-        				+ "            \"text\": \"A continuación, te mostramos tus *ultimas 3 citas del mes*.\\n\\n"+ citas + "\"\r\n"
-        				+ "        },\r\n"
-        				+ "        \"action\": {\r\n"
-        				+ "            \"buttons\":[\r\n"
-                		+ "                {\r\n"
-                		+ "                    \"type\": \"reply\",\r\n"
-                		+ "                    \"reply\": {\r\n"
-                		+ "                        \"id\": \"retornar\",\r\n"
-                		+ "                        \"title\": \"🔁 Retornar\"\r\n"
-                		+ "                    }\r\n"
-                		+ "                },\r\n"
-                		+ "                {\r\n"
-                		+ "                    \"type\": \"reply\",\r\n"
-                		+ "                    \"reply\": {\r\n"
-                		+ "                        \"id\": \"terminar_sesion\",\r\n"
-                		+ "                        \"title\": \"🔚 Finalizar\"\r\n"
-                		+ "                    }\r\n"
-                		+ "                }\r\n"
-                		+ "            ]\r\n"
-        				+ "        }\r\n"
-        				+ "    }\r\n"
-        				+ "}";
-    		}else {
-    			/*requestBody = "{\r\n"
-        				+ "    \"messaging_product\": \"whatsapp\",    \r\n"
-        				+ "    \"recipient_type\": \"individual\",\r\n"
-        				+ "    \"to\": \"" + to +  "\",\r\n"
-        				+ "    \"type\": \"text\",\r\n"
-        				+ "    \"text\": {\r\n"
-        				+ "        \"body\": \"Lo sentimos, no hay citas disponibles para esta fecha. 😔 Si deseas consultar con otra escribe *retornar* ↩️\"\r\n"
-        				+ "    }\r\n"
-        				+ "}";
-    			*/
-    			requestBody = "{\r\n"
-        				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-        				+ "    \"recipient_type\": \"individual\",\r\n"
-        				+ "    \"to\": \""+ to +"\",\r\n"
-        				+ "    \"type\": \"interactive\",\r\n"
-        				+ "    \"interactive\": {\r\n"
-        				+ "        \"type\": \"button\",\r\n"
-        				+ "        \"body\": {\r\n"
-        				+ "            \"text\": \"Lo sentimos, no hay citas disponibles para esta fecha. ☹️ Si deseas consultar presiona el botón *retornar* ↩️\"\r\n"
-        				+ "        },\r\n"
-        				+ "        \"action\": {\r\n"
-        				+ "            \"buttons\": [\r\n"
-        				+ "                {\r\n"
-        				+ "                    \"type\": \"reply\",\r\n"
-        				+ "                    \"reply\": {\r\n"
-        				+ "                        \"id\": \"terminar_sesion\",\r\n"
-        				+ "                        \"title\": \"Terminar\"\r\n"
-        				+ "                    }\r\n"
-        				+ "                }\r\n"
-        				+ "            ]\r\n"
-        				+ "        }\r\n"
-        				+ "    }\r\n"
-        				+ "}";
-    		}
-    		//mapDatos.put("lstMeses", lstMeses);
-    		sendHttpRequest(requestBody);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-   
+
     
     public void sendInformacionCita(String to, String token, Map<String, Object> mapDatos) {
 		try {		
@@ -1857,7 +1289,7 @@ public class RsWhatsapp {
         	        headers.put("Content-Type", "application/json; charset=utf-8");
         	        headers.put("Authorization", "Bearer " + token);
         	        String inputJson = String.format("{\"iafaAseguradora\":\"%s\",\"apPaterno\":\"%s\",\"apMaterno\":\"%s\",\"nombreCompleto\":\"%s\",\"tipoDocumento\":\"%s\",\"nroDocumento\":\"%s\"}", codIafa.replace("40007", "20001"), perApePaterno, perApeMaterno, nombreCompleto, tipoDocumento, nroDocumento);
-        	        responseData  = HttpRequestUtil.sendRequest("POST", END_POINT_URL + "/rs/siteds/v1/obtenerDatosSitets", inputJson, headers);
+        	        responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_BASE_CLINICA_BOT + "/rs/siteds/v1/obtenerDatosSitets", inputJson, headers);
         	        response = responseData.getResponseBody();
         			
         		} catch (Exception e) {
@@ -2229,210 +1661,23 @@ public class RsWhatsapp {
     	}
     }
     
-    public String obtenerUrlAcortada(String link) {
+    public String obtenerUrlAcortada(String to, String link) {
     	String response = "";
+  	  	HttpResponse responseData = null;
 		try {
-			String inputJson = "{\"url\":\""+ link +"\"}";
-			
-			String urlObjetivo = GlobalConstants.API_URL_RECORTER;
-			URL url = new URL(urlObjetivo);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-            connection.setDoOutput(true);
-            
-            try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = inputJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-            int responseCode = connection.getResponseCode();
-            InputStream inputStream;
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                inputStream = connection.getInputStream();
-            } else {
-                inputStream = connection.getErrorStream();
-            }
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
-                StringBuilder responseBuilder = new StringBuilder();
-                String responseLine;
-                while ((responseLine = br.readLine()) != null) {
-                    responseBuilder.append(responseLine.trim());
-                }
-                response = responseBuilder.toString();
-                return response;
-            }
-			
+			String inputJson = String.format("{\"url\":\"%s\"}", link);
+	        System.out.println("JSON ACORTADOR: " + inputJson);
+			Map<String, String> headers = new HashMap<String, String>();
+	        headers.put("Content-Type", "application/json; charset=utf-8");
+	        responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_URL_RECORTER, inputJson, headers);
+	        response = responseData.getResponseBody();
+	        System.out.println("RESPONSE ACORTADOR: " + inputJson);
+	        return response;
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+			sendMessageFinalizar(to, "Ha ocurrido un error al obtener el link del pago.");
 			return null;
-		}
-    }
-    
-    public void sendListHorarios(String to, String token, Map<String, Object> mapDatos) {
-    	try {		
-    		String response = "";
-    		Map<String, Object> especialidadFechas = (Map<String, Object>) mapDatos.get("especialidad_fecha");
-    		List<Map<String, Object>> lstEspecialisadesHorarios = new ArrayList<Map<String,Object>>();
-    		String fecha = "";
-    		try {
-    			fecha = especialidadFechas.get("fechaDispProf").toString().replace("Z", "");
-    			fecha = fecha.replace("\"", "");
-    			URL url = new URL(ENDPOINT_CITAS + "listarHorariosMedicosEspecialidad?codEsp=" + especialidadFechas.get("codEsp").toString() + "&fechaReg=" + fecha);
-    			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    			conn.setRequestMethod("GET");
-    			conn.setRequestProperty("Authorization", token);
-    			conn.setRequestProperty("Content-Type", "application/json");
-    			
-    			int responseCode = conn.getResponseCode();
-    			if (responseCode == HttpURLConnection.HTTP_OK) {
-    				System.out.println("Datos obtenidos");
-    				try (BufferedReader br = new BufferedReader(
-    						new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-    					StringBuilder responseBuilder = new StringBuilder();
-    					String responseLine;
-    					while ((responseLine = br.readLine()) != null) {
-    						responseBuilder.append(responseLine.trim());
-    					}
-    					response = responseBuilder.toString();
-    				}
-    			} else {
-    				System.out.println(url);
-    				System.out.println("Error al obtener los datos");
-    			}
-    			
-    			
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-    		JsonReader jsonReader = Json.createReader(new StringReader(response));
-    		JsonArray jsonArray = jsonReader.readArray();
-    		String horarios = "";
-    		Map<String, Object> mapHorariosPadre = new HashMap<String, Object>();
-    		int flag = 0;
-    		
-    		for (int i = 0; i < jsonArray.size(); i++) {
-    		    JsonObject jsonObjectPrincipal = jsonArray.getJsonObject(i);
-    		    System.out.println(jsonObjectPrincipal);
-    		    String icono = "";
-    		    if (jsonObjectPrincipal.getString("genero").equals("M")) {
-    		        icono = "👨‍⚕️";
-    		    } else {
-    		        icono = "👩‍⚕️";
-    		    }
-    		    horarios = "Profesional: *" + jsonObjectPrincipal.getString("profNombre") + "* " + icono +
-    		               "\\nDuración: *" + jsonObjectPrincipal.getInt("duracionCita") + " min.*\\nHorario: *" +
-    		               formaterDatePMAM(jsonObjectPrincipal.getString("horaInicio")) + " - " +
-    		               formaterDatePMAM(jsonObjectPrincipal.getString("horaFin")) + "* ⌛\\n\\n";
-    		    
-    		    JsonArray arrayHoras = jsonObjectPrincipal.getJsonArray("horariosDisponibles");
-    		    
-    		    if (arrayHoras.size() != 0) {
-    		        int horariosMostrados = 0;
-    		        for (int j = 0; j < arrayHoras.size(); j++) {
-    		            if (horariosMostrados >= 5) {
-    		                break;
-    		            }
-    		            
-    		            JsonObject jsonObjectSecundario = arrayHoras.getJsonObject(j);
-    		            Map<String, Object> mapHorarios = new HashMap<String, Object>();
-    		            mapHorariosPadre = new HashMap<String, Object>();
-    		            
-    		            if (jsonObjectSecundario.getString("estado").equals("PENDIENTE")) {
-    		                horarios += "⏳ *" + formaterDatePMAM(jsonObjectSecundario.getString("horaDisponible")) +
-    		                            " (Reservándose...)*\\n";
-    		            } else {
-    		                horarios += "*" + (flag + 1) + ".* " +
-    		                            formaterDatePMAM(jsonObjectSecundario.getString("horaDisponible")) + "\\n";
-    		                mapHorarios.put("horario", jsonObjectSecundario.getString("horaDisponible"));
-    		                mapHorarios.put("turno", jsonObjectSecundario.getInt("posibleTurno"));
-    		                mapHorarios.put("codHora", jsonObjectPrincipal.getInt("codHora"));
-    		                mapHorarios.put("codProf", jsonObjectPrincipal.getInt("codProf"));
-    		                mapHorarios.put("profNombre", jsonObjectPrincipal.getString("profNombre"));
-    		                mapHorarios.put("duracionCita", jsonObjectPrincipal.getInt("duracionCita"));
-    		                mapHorariosPadre.put(String.valueOf((flag + 1)), mapHorarios);
-    		                lstEspecialisadesHorarios.add(mapHorariosPadre);
-    		                flag++;
-    		            }
-    		            horariosMostrados++;
-    		        }
-    		        sendMessage(to, horarios);
-    		    } else {
-    		        horarios += "\\n\\n El especialista no cuenta con horarios disponibles por el momento. ☹️";
-    		        sendMessage(to, horarios);
-    		    }
-    		}
-    		
-    		
-    		if(lstEspecialisadesHorarios.size() == 0) {
-        		String requestBody = "{\r\n"
-        				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-        				+ "    \"recipient_type\": \"individual\",\r\n"
-        				+ "    \"to\": \""+ to +"\",\r\n"
-        				+ "    \"type\": \"interactive\",\r\n"
-        				+ "    \"interactive\": {\r\n"
-        				+ "        \"type\": \"button\",\r\n"
-        				+ "        \"body\": {\r\n"
-        				+ "            \"text\": \"😓 La fecha seleccionado no cuenta con horarios disponibles para este día, puedes volver al paso anterior para poder elegir otro.\"\r\n"
-        				+ "        },\r\n"
-        				+ "        \"action\": {\r\n"
-        				+ "            \"buttons\": [\r\n"
-        				+ "                {\r\n"
-        				+ "                    \"type\": \"reply\",\r\n"
-        				+ "                    \"reply\": {\r\n"
-        				+ "                        \"id\": \"retornar\",\r\n"
-        				+ "                        \"title\": \"🔁 Retornar\"\r\n"
-        				+ "                    }\r\n"
-        				+ "                },\r\n"
-        				+ "                {\r\n"
-        				+ "                    \"type\": \"reply\",\r\n"
-        				+ "                    \"reply\": {\r\n"
-        				+ "                        \"id\": \"terminar_sesion\",\r\n"
-        				+ "                        \"title\": \"🔚 Finalizar\"\r\n"
-        				+ "                    }\r\n"
-        				+ "                }\r\n"
-        				+ "            ]\r\n"
-        				+ "        }\r\n"
-        				+ "    }\r\n"
-        				+ "}";
-        		sendHttpRequest(requestBody);
-        		return;
-    		}
-    		
-    		mapDatos.put("lstHorarios", lstEspecialisadesHorarios);
-    		String requestBody = "{\r\n"
-    				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-    				+ "    \"recipient_type\": \"individual\",\r\n"
-    				+ "    \"to\": \""+ to +"\",\r\n"
-    				+ "    \"type\": \"interactive\",\r\n"
-    				+ "    \"interactive\": {\r\n"
-    				+ "        \"type\": \"button\",\r\n"
-    				+ "        \"body\": {\r\n"
-    				+ "            \"text\": \"Ahora puedes visualizar la *lista de horarios disponibles* y los medicos asignados. 👨‍💼\\n\\nPor favor, elige el número correspondiente a la hora que desees 😊\"\r\n"
-    				+ "        },\r\n"
-    				+ "        \"action\": {\r\n"
-    				+ "            \"buttons\": [\r\n"
-    				+ "                {\r\n"
-    				+ "                    \"type\": \"reply\",\r\n"
-    				+ "                    \"reply\": {\r\n"
-    				+ "                        \"id\": \"retornar\",\r\n"
-    				+ "                        \"title\": \"🔁 Retornar\"\r\n"
-    				+ "                    }\r\n"
-    				+ "                },\r\n"
-    				+ "                {\r\n"
-    				+ "                    \"type\": \"reply\",\r\n"
-    				+ "                    \"reply\": {\r\n"
-    				+ "                        \"id\": \"terminar_sesion\",\r\n"
-    				+ "                        \"title\": \"🔚 Finalizar\"\r\n"
-    				+ "                    }\r\n"
-    				+ "                }\r\n"
-    				+ "            ]\r\n"
-    				+ "        }\r\n"
-    				+ "    }\r\n"
-    				+ "}";
-    		sendHttpRequest(requestBody);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
     }
     
@@ -2513,268 +1758,8 @@ public class RsWhatsapp {
 			e.printStackTrace();
 		}
     }
-    
-    public void sendListHorariosVista(String to, String token, Map<String, Object> mapDatos) {
-    	try {		
-    		String response = "";
-    		Map<String, Object> especialidadFechas = (Map<String, Object>) mapDatos.get("especialidad_fecha");
-    		List<Map<String, Object>> lstEspecialisadesHorarios = new ArrayList<Map<String,Object>>();
-    		String fecha = "";
-    		try {
-    			fecha = especialidadFechas.get("fechaDispProf").toString().replace("Z", "");
-    			fecha = fecha.replace("\"", "");
-    			URL url = new URL(ENDPOINT_CITAS + "listarHorariosMedicosEspecialidad?codEsp=" + especialidadFechas.get("codEsp").toString() + "&fechaReg=" + fecha);
-    			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    			conn.setRequestMethod("GET");
-    			conn.setRequestProperty("Authorization", token);
-    			conn.setRequestProperty("Content-Type", "application/json");
-    			
-    			int responseCode = conn.getResponseCode();
-    			if (responseCode == HttpURLConnection.HTTP_OK) {
-    				System.out.println("Datos obtenidos");
-    				try (BufferedReader br = new BufferedReader(
-    						new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-    					StringBuilder responseBuilder = new StringBuilder();
-    					String responseLine;
-    					while ((responseLine = br.readLine()) != null) {
-    						responseBuilder.append(responseLine.trim());
-    					}
-    					response = responseBuilder.toString();
-    				}
-    			} else {
-    				System.out.println(url);
-    				System.out.println("Error al obtener los datos");
-    			}
-    			
-    			
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-    		JsonReader jsonReader = Json.createReader(new StringReader(response));
-    		JsonArray jsonArray = jsonReader.readArray();
-    		String horarios = "";
-    		Map<String, Object> mapHorariosPadre = new HashMap<String, Object>();
-    		int flag = 0;
-    		
-    		for (int i = 0; i < jsonArray.size(); i++) {
-    		    JsonObject jsonObjectPrincipal = jsonArray.getJsonObject(i);
-    		    System.out.println(jsonObjectPrincipal);
-    		    String icono = "";
-    		    if (jsonObjectPrincipal.getString("genero").equals("M")) {
-    		        icono = "👨‍⚕️";
-    		    } else {
-    		        icono = "👩‍⚕️";
-    		    }
-    		    horarios += "\\n\\nProfesional: *" + jsonObjectPrincipal.getString("profNombre") + "* " + icono +
-    		               "\\nDuración: *" + jsonObjectPrincipal.getInt("duracionCita") + " min.*\\nHorario: *" +
-    		               formaterDatePMAM(jsonObjectPrincipal.getString("horaInicio")) + " - " +
-    		               formaterDatePMAM(jsonObjectPrincipal.getString("horaFin")) + "* ⌛\\n\\n";
-    		}
-    		
-    		
-    		if(jsonArray.size() == 0) {
-        		String requestBody = "{\r\n"
-        				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-        				+ "    \"recipient_type\": \"individual\",\r\n"
-        				+ "    \"to\": \""+ to +"\",\r\n"
-        				+ "    \"type\": \"interactive\",\r\n"
-        				+ "    \"interactive\": {\r\n"
-        				+ "        \"type\": \"button\",\r\n"
-        				+ "        \"body\": {\r\n"
-        				+ "            \"text\": \"😓 La fecha seleccionado no cuenta con horarios disponibles para este día, puedes volver al paso anterior para poder elegir otro.\"\r\n"
-        				+ "        },\r\n"
-        				+ "        \"action\": {\r\n"
-        				+ "            \"buttons\": [\r\n"
-        				+ "                {\r\n"
-        				+ "                    \"type\": \"reply\",\r\n"
-        				+ "                    \"reply\": {\r\n"
-        				+ "                        \"id\": \"retornar\",\r\n"
-        				+ "                        \"title\": \"🔁 Retornar\"\r\n"
-        				+ "                    }\r\n"
-        				+ "                },\r\n"
-        				+ "                {\r\n"
-        				+ "                    \"type\": \"reply\",\r\n"
-        				+ "                    \"reply\": {\r\n"
-        				+ "                        \"id\": \"terminar_sesion\",\r\n"
-        				+ "                        \"title\": \"🔚 Finalizar\"\r\n"
-        				+ "                    }\r\n"
-        				+ "                }\r\n"
-        				+ "            ]\r\n"
-        				+ "        }\r\n"
-        				+ "    }\r\n"
-        				+ "}";
-        		sendHttpRequest(requestBody);
-        		return;
-    		}
-    		
-    		mapDatos.put("lstHorarios", lstEspecialisadesHorarios);
-    		String requestBody = "{\r\n"
-    				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-    				+ "    \"recipient_type\": \"individual\",\r\n"
-    				+ "    \"to\": \""+ to +"\",\r\n"
-    				+ "    \"type\": \"interactive\",\r\n"
-    				+ "    \"interactive\": {\r\n"
-    				+ "        \"type\": \"button\",\r\n"
-    				+ "        \"body\": {\r\n"
-    				+ "            \"text\": \"Ahora puedes visualizar el *horario de trabajo* de los medicos asignados. 👨‍💼 " + horarios + "\"\r\n"
-    				+ "        },\r\n"
-    				+ "        \"action\": {\r\n"
-    				+ "            \"buttons\": [\r\n"
-    				+ "                {\r\n"
-    				+ "                    \"type\": \"reply\",\r\n"
-    				+ "                    \"reply\": {\r\n"
-    				+ "                        \"id\": \"retornar\",\r\n"
-    				+ "                        \"title\": \"🔁 Retornar\"\r\n"
-    				+ "                    }\r\n"
-    				+ "                },\r\n"
-    				+ "                {\r\n"
-    				+ "                    \"type\": \"reply\",\r\n"
-    				+ "                    \"reply\": {\r\n"
-    				+ "                        \"id\": \"terminar_sesion\",\r\n"
-    				+ "                        \"title\": \"🔚 Finalizar\"\r\n"
-    				+ "                    }\r\n"
-    				+ "                }\r\n"
-    				+ "            ]\r\n"
-    				+ "        }\r\n"
-    				+ "    }\r\n"
-    				+ "}";
-    		sendHttpRequest(requestBody);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-
-    public void sendListFechas(String to, String token, Map<String, Object> mapDatos) {
-    	try {		
-    		String response = "";
-    		Map<String, Object> especialidad = (Map<String, Object>) mapDatos.get("especialidad");
-    		List<Map<String, Object>> lstEspecialidadesFechas = new ArrayList<>();
-    		String URL = ENDPOINT_CITAS + "listar-fechas-disponibles-especialidad?codEsp=" + especialidad.get("codEsp").toString();
-    		try {
-    			
-    			URL url = new URL(URL);
-    			System.out.println(url);
-    			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    			conn.setRequestMethod("GET");
-    			conn.setRequestProperty("Authorization", token);
-    			conn.setRequestProperty("Content-Type", "application/json");
-    			
-    			int responseCode = conn.getResponseCode();
-    			if (responseCode == HttpURLConnection.HTTP_OK) {
-    				System.out.println("Datos obtenidos");
-    				try (BufferedReader br = new BufferedReader(
-    						new InputStreamReader(conn.getInputStream(), "utf-8"))) {
-    					StringBuilder responseBuilder = new StringBuilder();
-    					String responseLine;
-    					while ((responseLine = br.readLine()) != null) {
-    						responseBuilder.append(responseLine.trim());
-    					}
-    					response = responseBuilder.toString();
-    				}
-    			} else {
-    				System.out.println("Error al obtener los datos");
-    			}
-    			
-    			
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-    		JsonReader jsonReader = Json.createReader(new StringReader(response));
-    		JsonArray jsonArray = jsonReader.readArray();
-    		
-    		String requestBody = "";
-    		
-    		if(jsonArray.size() == 0) {
-    			requestBody = "{\r\n"
-        				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-        				+ "    \"recipient_type\": \"individual\",\r\n"
-        				+ "    \"to\": \""+to+"\",\r\n"
-        				+ "    \"type\": \"interactive\",\r\n"
-        				+ "    \"interactive\": {\r\n"
-        				+ "        \"type\": \"button\",\r\n"
-        				+ "        \"body\": {\r\n"
-        				+ "            \"text\": \"😓 La especialidad seleccionada no cuenta con horarios disponibles por el momento.\"\r\n"
-        				+ "        },\r\n"
-        				+ "        \"action\": {\r\n"
-        				+ "            \"buttons\": [\r\n"
-        				+ "                {\r\n"
-        				+ "                    \"type\": \"reply\",\r\n"
-        				+ "                    \"reply\": {\r\n"
-        				+ "                        \"id\": \"retornar\",\r\n"
-        				+ "                        \"title\": \"🔁 Retornar\"\r\n"
-        				+ "                    }\r\n"
-        				+ "                },\r\n"
-        				+ "                {\r\n"
-        				+ "                    \"type\": \"reply\",\r\n"
-        				+ "                    \"reply\": {\r\n"
-        				+ "                        \"id\": \"terminar_sesion\",\r\n"
-        				+ "                        \"title\": \"🔚 Finalizar\"\r\n"
-        				+ "                    }\r\n"
-        				+ "                }\r\n"
-        				+ "            ]\r\n"
-        				+ "        }\r\n"
-        				+ "    }\r\n"
-        				+ "}";
-        		sendHttpRequest(requestBody);
-        		return;
-    		}
-    		
-    		
-    		String especialidadFecha = "";
-    		for (int i = 0; i < jsonArray.size(); i++) {
-    			Map<String, Object> mapEspecialidadFecha = new HashMap<String, Object>();
-    			JsonObject jsonObject = jsonArray.getJsonObject(i);
-    			especialidadFecha += "*" + (i + 1) + ".*" + " " + formaterDate(jsonObject.getString("fechaDispProf").replace("Z", "")) + "\\n";
-    			mapEspecialidadFecha.put(String.valueOf((i + 1)), jsonObject);
-    			lstEspecialidadesFechas.add(mapEspecialidadFecha);
-    		}
-    		mapDatos.put("especialidadesFechas", lstEspecialidadesFechas);
-    		/*String requestBody = "{\r\n"
-    				+ "    \"messaging_product\": \"whatsapp\",    \r\n"
-    				+ "    \"recipient_type\": \"individual\",\r\n"
-    				+ "    \"to\": \"" + to +  "\",\r\n"
-    				+ "    \"type\": \"text\",\r\n"
-    				+ "    \"text\": {\r\n"
-    				+ "        \"body\": \"Aquí tienes las *fechas disponibles* para la especialidad que seleccionaste. Por favor, revisa la lista de opciones a continuación y elige la fecha que mejor te convenga. ¡Estamos aquí para ayudarte a coordinar tu cita de la mejor manera posible! 📅.\\n\\n"+ especialidadFecha +" \\nSelecciona el número de la fecha que prefieras. 😊\\n\\nSi deseas volver al paso anterior para elegir otra especialidad escribe *Retornar* ↩️\"\r\n"
-    				+ "    }\r\n"
-    				+ "}";*/
-    		requestBody = "{\r\n"
-    				+ "    \"messaging_product\": \"whatsapp\",\r\n"
-    				+ "    \"recipient_type\": \"individual\",\r\n"
-    				+ "    \"to\": \""+to+"\",\r\n"
-    				+ "    \"type\": \"interactive\",\r\n"
-    				+ "    \"interactive\": {\r\n"
-    				+ "        \"type\": \"button\",\r\n"
-    				+ "        \"body\": {\r\n"
-    				+ "            \"text\": \"Aquí tienes las *fechas disponibles* para la especialidad que seleccionaste. Por favor, revisa la lista de opciones a continuación y elige la fecha que mejor te convenga. ¡Estamos aquí para ayudarte a coordinar tu cita de la mejor manera posible! 📅.\\n\\n"+ especialidadFecha +" \\nSelecciona el número de la fecha que prefieras. 😊\"\r\n"
-    				+ "        },\r\n"
-    				+ "        \"action\": {\r\n"
-    				+ "            \"buttons\": [\r\n"
-    				+ "                {\r\n"
-    				+ "                    \"type\": \"reply\",\r\n"
-    				+ "                    \"reply\": {\r\n"
-    				+ "                        \"id\": \"retornar\",\r\n"
-    				+ "                        \"title\": \"🔁 Retornar\"\r\n"
-    				+ "                    }\r\n"
-    				+ "                },\r\n"
-    				+ "                {\r\n"
-    				+ "                    \"type\": \"reply\",\r\n"
-    				+ "                    \"reply\": {\r\n"
-    				+ "                        \"id\": \"terminar_sesion\",\r\n"
-    				+ "                        \"title\": \"🔚 Finalizar\"\r\n"
-    				+ "                    }\r\n"
-    				+ "                }\r\n"
-    				+ "            ]\r\n"
-    				+ "        }\r\n"
-    				+ "    }\r\n"
-    				+ "}";
-    		sendHttpRequest(requestBody);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-    }
-    
-    public void sendListFechasXMedico(String to, String token, Map<String, Object> mapDatos) {
+       
+    public void sendListFechasXMedico(String to, String token, Map<String, Object> mapDatos, boolean vista) {
     	try {
     		String response = "";
     		HttpResponse responseData = null;
@@ -2831,30 +1816,32 @@ public class RsWhatsapp {
     			JsonArray jsonArrayFechas = jsonPadre.getJsonArray("dias");
     			jsonArrayFechas = jsonArrayFechas.getJsonArray(0);
     			if(jsonArrayFechas.size() > 0) {    				
-    				for(int j = 0; j < jsonArrayFechas.size(); j++) {
+    				for(int j = 0; j < jsonArrayFechas.size() && j < 5; j++) {
     					JsonObject jsonHijo = jsonArrayFechas.getJsonObject(j);
     					JsonArray jsonArraySubHijo = jsonHijo.getJsonArray("horarios");
     					JsonObject jsonSubHijo = jsonArraySubHijo.getJsonObject(0);
-    					Map<String, Object> mapHorarios = new HashMap<String, Object>();
     					if(j == 0) {    						
     						especialidadFecha += "Horario: *" + formaterTimeAQP(jsonSubHijo.getString("horaInicio")) + " - " + formaterTimeAQP(jsonSubHijo.getString("horaFin")) + "* ⌛\\n\\n";
     					}
-    					especialidadFecha += "*" + (flag + 1) + ".* " + formaterDate(jsonHijo.getString("fecha")) + "\\n";
-		                mapHorarios.put("fechaDisponible", jsonHijo.getString("fecha"));
-		                mapHorarios.put("turno", Integer.valueOf(1));
-		                mapHorarios.put("codHora", jsonHijo.getString("idHorario"));
-		                mapHorarios.put("codProf", jsonPadre.getInt("idMedico"));
-		                mapHorarios.put("profNombre", jsonPadre.getString("medico"));
-		                mapHorarios.put("duracionCita", jsonPadre.getJsonNumber("tiempoPromedioAtencion").doubleValue());
-		                mapHorariosPadre.put(String.valueOf((flag + 1)), mapHorarios);
-		                lstEspecialidadesFechas.add(mapHorariosPadre);
-    					flag++;
+    					if(vista) {    						
+    						Map<String, Object> mapHorarios = new HashMap<String, Object>();
+    						especialidadFecha += "*" + (flag + 1) + ".* " + formaterDate(jsonHijo.getString("fecha")) + "\\n";
+    						mapHorarios.put("fechaDisponible", jsonHijo.getString("fecha"));
+    						mapHorarios.put("turno", Integer.valueOf(1));
+    						mapHorarios.put("codHora", jsonHijo.getString("idHorario"));
+    						mapHorarios.put("codProf", jsonPadre.getInt("idMedico"));
+    						mapHorarios.put("profNombre", jsonPadre.getString("medico"));
+    						mapHorarios.put("duracionCita", jsonPadre.getJsonNumber("tiempoPromedioAtencion").doubleValue());
+    						mapHorariosPadre.put(String.valueOf((flag + 1)), mapHorarios);
+    						lstEspecialidadesFechas.add(mapHorariosPadre);
+    						flag++;
+    					}
     				}
     			}
     			sendMessage(to, especialidadFecha);
     		}
     		mapDatos.put("especialidadesFechas", lstEspecialidadesFechas);
-    		sendMessageContinuar(to, "Ahora puedes visualizar la *lista de fechas disponibles* y los medicos asignados para especialidad de *" + especialidadDesc.replace("\"", "") + "*. 👨‍💼\\n\\nPor favor, elige el número correspondiente de la fecha que desees. 😊");
+    		sendMessageContinuar(to, "Ahora puedes visualizar la *lista de fechas disponibles/horarios* y los medicos asignados para especialidad de *" + especialidadDesc.replace("\"", "") + "*. 👨‍💼\\n\\nPor favor, elige el número correspondiente de la fecha que desees. 😊");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -2890,7 +1877,7 @@ public class RsWhatsapp {
     			+ "                            \"title\": \"👩‍⚕️ Reservar Cita\",\r\n"
     			+ "                            \"description\": \"Podrás reservar tu cita para cualquier especialidad y medico.\"\r\n"
     			+ "                        },\r\n"
-    			+ "                        {\r\n"
+    			/*+ "                        {\r\n"
     			+ "                            \"id\": \"citas_programadas\",\r\n"
     			+ "                            \"title\": \"🗓️ Citas Programadas\",\r\n"
     			+ "                            \"description\": \"Obtendrás las ultimas citas programadas que tengas.\"\r\n"
@@ -2899,7 +1886,7 @@ public class RsWhatsapp {
     			+ "                            \"id\": \"historial_citas\",\r\n"
     			+ "                            \"title\": \"📋 Historial de Citas\",\r\n"
     			+ "                            \"description\": \"Obtendrás las 3 ultimas citas que has tenido.\"\r\n"
-    			+ "                        },\r\n"
+    			+ "                        },\r\n"*/
     			+ "                        {\r\n"
     			+ "                            \"id\": \"info_horarios\",\r\n"
     			+ "                            \"title\": \"🔍 Consulta de Horarios\",\r\n"
@@ -3154,10 +2141,10 @@ public class RsWhatsapp {
        
     public void sendHttpRequest(String requestBody) {
         try {
-            URL url = new URL("https://graph.facebook.com/v20.0/" + PHONE_NUMBER_ID + "/messages");
+            URL url = new URL("https://graph.facebook.com/v20.0/" + GlobalConstants.PHONE_NUMBER_ID + "/messages");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
+            conn.setRequestProperty("Authorization", "Bearer " + GlobalConstants.API_ACCESS_TOKEN);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 
@@ -3271,214 +2258,8 @@ public class RsWhatsapp {
         }
     } 
      
-    public boolean validarPago(String to, Map<String, Object> mapConversacion, ConversationSession session) {
-    	/*int intentoPagar = (int) mapConversacion.getOrDefault("intento_pagar", 0);
-    	mapConversacion.put("intento_pagar", intentoPagar + 1);   	
-    	
-    	if (intentoPagar >= 3) {
-    	    sendMessage(to, "❌ ¡Has alcanzado el máximo de intentos de pago, se procederá a cerrar el registro de cita!");
-        	if(mapConversacion.get("codeVenta") != null) {
-        		String codeVenta = mapConversacion.get("codeVenta").toString();
-        		eliminarVentaWsp(codeVenta);
-        	}
-        	sendTerminoDeSesion(to, session);
-    	    return false;
-    	}
-    	
-    	String code = mapConversacion.get("codeVenta").toString();
-    	Connection cnx = this.config.cnx();
-    	Map<String, Object> mapVenta = SqlUtilData.selectUnico("sch_gestion", "tbl_sia_cmedicapro", cnx, "cmedicapro_hash", code);
-    	this.config.cerrarCnx(cnx);
-    	if(mapVenta == null) {
-    		sendMessage(to, "❌ ¡No hay una venta registrada con ese codigo!");
-    		return false;
-    	}
-    	
-    	if(mapVenta.get("cmedicapro_token") == null){
-    		String requestBody = "{\r\n"
-        			+ "    \"messaging_product\": \"whatsapp\",\r\n"
-        			+ "    \"recipient_type\": \"individual\",\r\n"
-        			+ "    \"to\": \""+ to +"\",\r\n"
-        			+ "    \"type\": \"interactive\",\r\n"
-        			+ "    \"interactive\": {\r\n"
-        			+ "        \"type\": \"button\",\r\n"
-        			+ "        \"body\": {\r\n"
-        			+ "            \"text\": \"❌ ¡El pago no se ha realizado! \\n\\n🔄 Intento número " + mapConversacion.get("intento_pagar") + " \"\r\n"
-        			+ "        },\r\n"
-        			+ "        \"action\": {\r\n"
-        			+ "            \"buttons\": [\r\n"
-        			+ "                {\r\n"
-        			+ "                    \"type\": \"reply\",\r\n"
-        			+ "                    \"reply\": {\r\n"
-        			+ "                        \"id\": \"realizar_venta\",\r\n"
-        			+ "                        \"title\": \"🔄 Reintentar\"\r\n"
-        			+ "                    }\r\n"
-        			+ "                },\r\n"
-        			+ "                {\r\n"
-        			+ "                    \"type\": \"reply\",\r\n"
-        			+ "                    \"reply\": {\r\n"
-        			+ "                        \"id\": \"terminar_sesion\",\r\n"
-        			+ "                        \"title\": \"❌ Cancelar\"\r\n"
-        			+ "                    }\r\n"
-        			+ "                }\r\n"
-        			+ "            ]\r\n"
-        			+ "        }\r\n"
-        			+ "    }\r\n"
-        			+ "}";
-        	sendHttpRequest(requestBody);
-    		return false;
-    	}
-    	String token_chr = mapVenta.get("cmedicapro_token").toString();
-    	mapConversacion.put("tokenVentaRealizada", token_chr);
-    	String response = "";
-    	try {
-    	    URL url = new URL("https://api.culqi.com/v2/charges/" + token_chr);
-    	    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-    	    connection.setRequestMethod("GET");
-    	    connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-    	    connection.addRequestProperty("Authorization", "Bearer " + SECRET_KEY);
-
-    	    int responseCode = connection.getResponseCode();
-    	    InputStream inputStream;
-    	    if (responseCode == HttpURLConnection.HTTP_OK) {
-    	        inputStream = connection.getInputStream();
-    	    } else {
-    	        inputStream = connection.getErrorStream();
-    	    }
-
-    	    try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "utf-8"))) {
-    	        StringBuilder responseBuilder = new StringBuilder();
-    	        String responseLine;
-    	        while ((responseLine = br.readLine()) != null) {
-    	            responseBuilder.append(responseLine.trim());
-    	        }
-    	        response = responseBuilder.toString();
-    	    }
-    	    
-    	    if (responseCode == HttpURLConnection.HTTP_OK && response.contains("\"type\":\"venta_exitosa\"")) {
-    	    	sendMessage(to, "✔️ El cargo ha sido procesado existosamente, se procederá a registrar la cita.");
-    	    } else {
-    	    	sendMessage(to, "❌ No existe una venta realizada con este codigo.");
-    	        return false;
-    	    }
-
-    	} catch (Exception e) {
-    	    e.printStackTrace();
-    	    sendMessage(to, "❌ Ocurrio un error al validar el pago, contactate con un administrador.");
-    	    return false;
-    	}*/
-    	
-    	//No existe el cargo que intentas consultar
-    	
-    	return false;
-    }
-    
     /* AUTENTICACION Y FUNCIONES PARA CADENAS, FECHAS, ETC. */
     
-	public int registrarPagoLink(Integer codProf, Integer codEsp, Integer codPaciente, Integer codHorario, Timestamp fechaCita, String producto, Double precio, String hash) {
-		
-		/*try {
-			Connection cnx = this.config.txIni();
-			Map<String, Object> mapDatosVenta = new HashMap<String, Object>();
-			mapDatosVenta.put("cmedicapro_codprof", codProf);
-			mapDatosVenta.put("cmedicapro_codesp", codEsp);
-			mapDatosVenta.put("cmedicapro_codpaciente", codPaciente);
-			mapDatosVenta.put("cmedicapro_codhorario", codHorario);
-			mapDatosVenta.put("cmedicapro_fcita", fechaCita);
-			mapDatosVenta.put("cmedicapro_producto", producto);
-			mapDatosVenta.put("cmedicapro_precio", precio);
-			mapDatosVenta.put("cmedicapro_codorg", Integer.valueOf(1));
-			mapDatosVenta.put("cmedicapro_hash", hash);
-			mapDatosVenta.put("cmedicapro_estado", Integer.valueOf(1));
-			mapDatosVenta.put("cmedicapro_usrregistro", sEmail);
-			mapDatosVenta.put("cmedicapro_ipregistro", this.requestData.getRemoteAddress());
-			mapDatosVenta.put("cmedicapro_usrauditoria", sEmail);
-			mapDatosVenta.put("cmedicapro_ipauditoria", this.requestData.getRemoteAddress());
-			SqlUtilData.insert("sch_gestion", "tbl_sia_cmedicapro", mapDatosVenta, cnx);
-			this.config.txFin(cnx);
-			this.config.cerrarCnx(cnx);
-			
-			return 1;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-		
-		
-		return 0;
-	}
-	
-	public int eliminarVentaWsp (String code){
-		/*try {
-			Connection cnx = this.config.txIni();
-			Map<String, Object> mapVenta = SqlUtilData.selectUnico("sch_gestion", "tbl_sia_cmedicapro", cnx, "cmedicapro_hash",code);
-			if(mapVenta.get("cmedicapro_token") == null) {				
-				SqlUtilData.delete("sch_gestion", "tbl_sia_cmedicapro", "cmedicapro_hash", code , cnx);
-			}
-			this.config.txFin(cnx);
-			this.config.cerrarCnx(cnx);
-			return 1;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-				  
-		return 0;
-	}
-	
-    public String obtenerDatosSited(String nroDoc, Integer tipoDoc) {
-    	try {
-    		String response = "";
-        	//Connection cnx = this.config.txIni();
-        	//Map<String, Object> mapOrg = SqlUtil.selectUnico("sch_gestion", "tbl_sia_orgvalor", cnx, "orgvalor_codigo", Integer.valueOf(1));
-        	//String admision = mapOrg.get("orgvalor_admision").toString();
-    		//String nroDocumento = mapOrg.get("orgvalor_nrodoc").toString();
-    	    String admision = "29288258";
-    	    String nroDocumento = "20162580672";
-  	    	String inputJson = "{\"doConsultante\":\""+ admision  +"\",\"idInstitucion\":\""+nroDocumento+"\",\"nuDocumento\":\""+ nroDoc +"\",\"tiDocumento\":\""+ String.valueOf(tipoDoc).replace("4", "2").replace("7", "3")+"\"}";	
-  	        try {	
-  	            URL url = new URL("http://200.39.148.101:8180/sofia-ws-common/rs/afl/qoAfiliado");
-  	            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-  	            connection.setRequestMethod("POST");
-  	            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-  	            connection.addRequestProperty("Authorization", "1tFTQwISn4c=");
-  	            connection.setDoOutput(true);
-
-  	            try (OutputStream os = connection.getOutputStream()) {
-  	                byte[] input = inputJson.getBytes("utf-8");
-  	                os.write(input, 0, input.length);
-  	            }
-
-  	            try (BufferedReader br = new BufferedReader(
-  	                    new InputStreamReader(connection.getInputStream(), "utf-8"))) {
-  	                StringBuilder responseBuilder = new StringBuilder();
-  	                String responseLine;
-  	                while ((responseLine = br.readLine()) != null) {
-  	                    responseBuilder.append(responseLine.trim());
-  	                }
-  	                response = responseBuilder.toString();
-  	            }
-
-  	        } catch (Exception e) {
-  	            e.printStackTrace();
-  	            return "No se pudo obtener los datos de la persona.";
-  	        }
-  	        JsonReader jsonReader = Json.createReader(new StringReader(response));
-  	        JsonObject jsonObject = jsonReader.readObject();
-  	        String coError = jsonObject.getString("coError");
-  	        if(coError.equals("1002")) {
-  	        	return "No se han encontrado datos para este documento, revisa los datos correctamente y vuelve a intentarlo.";
-  	        }
-  	        
-  	        return response;
-    	}
-    	catch (Exception e) {
-			e.printStackTrace();
-			return "Ocurrio un error";
-		}
-  
-    }
-	
 	
     public Map<String, Object> wspAutenticacion(String nroDoc, int tipoDoc, int appClient, String numPersona){
 		Map<String, Object> mapResponse = null;

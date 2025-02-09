@@ -50,7 +50,8 @@ public class HttpRequestUtil {
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod(method.toUpperCase());
             connection.setDoOutput("POST".equalsIgnoreCase(method));
-
+            connection.setConnectTimeout(60000);
+            connection.setReadTimeout(60000); 
             // Set headers
             if (headers != null) {
                 for (Map.Entry<String, String> header : headers.entrySet()) {

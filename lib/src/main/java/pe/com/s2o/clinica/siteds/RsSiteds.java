@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -759,12 +760,194 @@ public class RsSiteds {
 	  			throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar el servicio SoliAutorizacion.");
 	  		}
 	  	
+			if(responseData.getStatusCode() == 500) {
+				throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio SoliAutorizacion.");
+			}
+	  		
 	  	JsonReader jsonReader = Json.createReader(new StringReader(response));
 	  	JsonObject jsonObject = jsonReader.readObject();
 	  	tipoAutorizacion = "01";
 	  	nroAutorizacion = jsonObject.getString("nuAutorizacion");
+	  	System.out.println("NUMERO AUTORIZACION: " + nroAutorizacion);
 	  	mapResponse.put("tiAutorizacion", tipoAutorizacion);
-	  	mapResponse.put("nroAutorizacion", nroAutorizacion);	  	
+	  	mapResponse.put("nroAutorizacion", nroAutorizacion);
+	  	LocalDateTime fechaHoraActual = LocalDateTime.now();
+        DateTimeFormatter formatoSalida = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	  	String noTransaccion = null;
+	  	String feTransaccion = fechaHoraActual.format(formatoSalida);
+	  	String nuRucRemitente = null;
+	  	String caReceptor = null;
+	  	String deCobertura = "CONSULTA AMBULATORIA";
+	  	String caResponsableAut = null;
+	  	String noPaResponsableAut=null;
+	  	String noResponsableAut=null;
+	  	String noMaResponsableAut=null;
+	  	String tiDoResponsableAut=null;
+	  	String nuDoResponsableAut=null;
+	  	String nuControl = "";
+	  	String nuControlST = "";
+	  	formatoSalida = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss");
+	  	String feHoTransaccion = fechaHoraActual.format(formatoSalida);
+	    inputJson = String.format("{\"sitedsNonce\":\"%s\","
+	    		+ "\"sitedsPassword\":\"%s\","
+	    		+ "\"sitedsUser\":\"%s\","
+	    		+ "\"idRemitente\":\"%s\","
+	    		+ "\"idReceptor\":\"%s\","
+	    		+ "\"tiDoPaciente\":\"%s\","
+	    		+ "\"nuDoPaciente\":\"%s\","
+	    		+ "\"coAfPaciente\":\"%s\","
+	    		+ "\"coProducto\":\"%s\","
+	    		+ "\"noTransaccion\":\"%s\","
+	    		+ "\"feTransaccion\":\"%s\","
+	    		+ "\"nuRucRemitente\":\"%s\","
+	    		+ "\"caReceptor\":\"%s\","
+	    		+ "\"caPaciente\":\"%s\","
+	    		+ "\"coEsPaciente\":\"%s\","
+	    		+ "\"nuContratoPaciente\":\"%s\","
+	    		+ "\"coTiPolizaAfiliacion\":\"%s\","
+	    		+ "\"nuPlan\":\"%s\","
+	    		+ "\"coParentesco\":\"%s\","
+	    		+ "\"feNacimiento\":\"%s\","
+	    		+ "\"genero\":\"%s\","
+	    		+ "\"feIniVigencia\":\"%s\","
+	    		+ "\"nuCobertura\":\"%s\","
+	    		+ "\"deCobertura\":\"%s\","
+	    		+ "\"caContratante\":\"%s\","
+	    		+ "\"tiDoContratante\":\"%s\","
+	    		+ "\"idReContratante\":\"%s\","
+	    		+ "\"rucContratante\":\"%s\","
+	    		+ "\"coAfiliadoTitular\":\"%s\","
+	    		+ "\"caResponsableAut\":\"%s\","
+	    		+ "\"noPaResponsableAut\":\"%s\","
+	    		+ "\"noResponsableAut\":\"%s\","
+	    		+ "\"noMaResponsableAut\":\"%s\","
+	    		+ "\"tiDoResponsableAut\":\"%s\","
+	    		+ "\"nuDoResponsableAut\":\"%s\","
+	    		+ "\"nuAutorizacion\":\"%s\","
+	    		+ "\"feHoAutorizacion\":\"%s\","
+	    		+ "\"beMaxInicial\":\"%s\","
+	    		+ "\"coPagoFijo\":\"%s\","
+	    		+ "\"coPagoVariable\":\"%s\","
+	    		+ "\"flagCartaGarantia\":\"%s\","
+	    		+ "\"deFlagCartaGarantia\":\"%s\","
+	    		+ "\"nuControl\":\"%s\","
+	    		+ "\"nuControlST\":\"%s\"}",
+	    		GlobalSitedsConstants.SITEDS_NONCE,
+	    		GlobalSitedsConstants.SITEDS_PASSWORD, 
+	    		GlobalSitedsConstants.SITEDS_USER, 
+	    		GlobalSitedsConstants.SITEDS_ID_REMITENTE,
+	    		idReceptor,
+	    		tiDoPaciente,
+	    		nuDoPaciente,
+	    		coAfPaciente,
+	    		coProducto,
+	    		noTransaccion,
+	    		feTransaccion,
+	    		nuRucRemitente,
+	    		caReceptor,
+	    		caPaciente,
+	    		coEsPaciente,
+	    		nuContratoPaciente,
+	    		coTiPoliza,
+	    		nuPlan,
+	    		coParentesco,
+	    		feNacimiento,
+	    		genero,
+	    		feIniVigencia,
+	    		nuCobertura,
+	    		deCobertura,
+	    		caContrantante,
+	    		tiDoContratante,
+	    		idReContratante,
+	    		coReContratante,
+	    		coAfTitular,
+	    		caResponsableAut,
+	    		noPaResponsableAut,
+	    		noResponsableAut,
+	    		noMaResponsableAut,
+	    		tiDoResponsableAut,
+	    		nuDoResponsableAut,
+	    		nroAutorizacion,
+	    		feHoTransaccion,
+	    		beMaxInicial,
+	    		coPagoFijo,
+	    		coPagoVariable,
+	    		flagCG,
+	    		detFlagCG,
+	    		nuControl,
+	    		nuControlST
+	    );
+	      
+	  		try {
+	  	        System.out.println("JSON ACREDITACION: " + inputJson);
+	  			Map<String, String> headers = new HashMap<String, String>();
+	  	        headers.put("Content-Type", "application/json; charset=utf-8");
+	  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
+	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
+	  	      responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ACREDITACION, inputJson, Map.of(
+	                    "Content-Type", "application/json; charset=utf-8",
+	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
+	                ));
+	  	        response = responseData.getResponseBody();
+	  	        System.out.println("RESPONSE ACREDITACION: " + response);
+	  			
+	  		} catch (Exception e) {
+	  			throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar el servicio Acreditacion.");
+	  		}
+	  		
+			if(responseData.getStatusCode() == 500) {
+				throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio Acreditacion.");
+			}
+			
+			
+		  	jsonReader = Json.createReader(new StringReader(response));
+		  	jsonObject = jsonReader.readObject();
+		  	
+		  	String trama = jsonObject.getString("peticion");
+			
+			String host = "app3.susalud.gob.pe";
+			String channel= "CH.SUSALUD.IPRESS_LA";
+			String port= "1430";
+			String queueManager= "QM.999.998.AC";
+			String queueIn= "QL.995.AC.002.3.IN";
+			String queueOut= "QL.995.AC.002.3.OUT";
+			String jmsType= "mcd://XMLNSC/[set]";
+			String property= "JMS_IBM_Character_Set";
+			
+		    inputJson = String.format("{\"host\":\"%s\",\"channel\":\"%s\",\"port\":\"%s\",\"queueManager\":\"%s\",\"queueIn\":\"%s\",\"queueOut\":\"%s\",\"jmsType\":\"%s\",\"property\":\"%s\",\"mensaje\":\"<?xml version='1.0' encoding='utf-8'?><RegistroAutRequest xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns='http://www.susalud.gob.pe/acreditacion/RegistroAutRequest.xsd'><txNombre xmlns=''>271_LOGACRE_INSERT</txNombre><codRemitente xmlns=''>%s</codRemitente><txPeticion xmlns=''>%s</txPeticion></RegistroAutRequest>\"}",
+		    		host,
+		    		channel,
+		    		port,
+		    		queueManager,
+		    		queueIn,
+		    		queueOut,
+		    		jmsType,
+		    		property,
+		    		GlobalSitedsConstants.SITEDS_ID_REMITENTE,
+		    		trama
+		    );
+		      
+		  		try {
+		  	        System.out.println("JSON ENVIAR RECIBIR : " + inputJson);
+		  			Map<String, String> headers = new HashMap<String, String>();
+		  	        headers.put("Content-Type", "application/json; charset=utf-8");
+		  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
+		  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
+		  	        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ENVIARRECIBIR, inputJson, Map.of(
+		                    "Content-Type", "application/json; charset=utf-8",
+		                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
+		                ));
+		  	        response = responseData.getResponseBody();
+		  	        System.out.println("RESPONSE ENVIAR RECIBIR: " + response);
+		  			
+		  		} catch (Exception e) {
+		  			throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar el servicio SoliAutorizacion.");
+		  		}
+		  	
+				if(responseData.getStatusCode() == 500) {
+					throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio SoliAutorizacion.");
+				}
+	  	
   	  return mapResponse;
     }
     
@@ -826,7 +1009,8 @@ public class RsSiteds {
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setDoInput(true);
-
+        connection.setConnectTimeout(50000);
+        connection.setReadTimeout(40000);
         // Agregar encabezados
         for (Map.Entry<String, String> header : headers.entrySet()) {
             connection.setRequestProperty(header.getKey(), header.getValue());
