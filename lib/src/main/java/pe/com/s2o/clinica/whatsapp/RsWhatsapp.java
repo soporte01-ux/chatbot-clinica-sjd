@@ -806,6 +806,7 @@ public class RsWhatsapp {
                     catch(Exception ex) {
                     	ex.printStackTrace();
                     	sendMessage(from, "❌ ¡El documento ingresado no se encuentra registrado en el servicio o no se pudo consultar la información, contactate con el area de soporte!");
+                    	return;
                     }
                 }
             } else {
@@ -929,6 +930,7 @@ public class RsWhatsapp {
 	        String response = responseData.getResponseBody();
 	        if(response.contains("Se ha actualizado el correo exitosamente.")) {
 		        conversationState.put("modulo", "elegir_modulo");
+		        conversationState.put("correo", userMessage);
 		        String nombre = capitalizeFirstLetter(nombrePersona);
 		        sendButtonsModulos(from, nombre);
 	        }
@@ -2363,15 +2365,18 @@ public class RsWhatsapp {
   	        			apPaterno, apMaterno, extraerNumeroTelefonico(numPersona), "", departamento, nroDoc, fechaFormateada, noPersona, origen, pais, provincia, genero, tipoDocumento);
   	        	
   	        	try {
+  	  	  	    	System.out.println("JSON REGISTRO PERSONA: " + inputJson);
   	  	        	Map<String, String> headers = new HashMap<String, String>();
   	  	        	headers.put("Content-Type", "application/json; charset=utf-8");
-  	  	        	responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_REGISTRO_PERSONA, inputJson, headers);
+  	  	        	responseData  = RsSiteds.sendPostRequest(GlobalConstants.API_REGISTRO_PERSONA, inputJson, headers);
   	        	}
   	        	catch(Exception ex) 
   	        	{
   	        		mapResponse.put("excepcion", "No se pudo registrar a la persona, intentalo de nuevo más tarde, o comunicate con un encargado.");
   	        		return mapResponse;
   	        	}
+  	        	
+  	        	System.out.println("JSON RESPONSE PERSONA CREAD: " + responseData.getResponseBody() + " CON CODIGO: " + responseData.getStatusCode());
   	        	
   	  	        jsonReader = Json.createReader(new StringReader(responseData.getResponseBody()));
   	  	        jsonObject = jsonReader.readObject();
@@ -2385,28 +2390,30 @@ public class RsWhatsapp {
   	  	    	mapPersonaDetail.put("perApePaterno", jsonObject.getString("apellidopaterno"));
   	        	mapPersonaDetail.put("perApeMaterno", jsonObject.getString("apellidomaterno"));
   	        	mapPersonaDetail.put("nroDocumento", jsonObject.getString("documento"));
-  	        	mapResponse.put("token", jsonObject.getString("token"));
   	        	mapResponse.put("personaInfo", mapPersonaDetail);
   	        	String correo  = jsonObject.isNull("correoelectronico") ? "" : jsonObject.getString("correoelectronico");
   	        	mapResponse.put("correo", correo);
   	        	mapResponse.put("modo_inicio", "registro");  	
   	        	
-  	  		    inputJson = "{\"documento\":"+ nroDoc +"}";
+  	  		    inputJson = "{\"documento\":\""+ nroDoc +"\"}";
   	  	        
   	  	    	try {
+  	  	    	System.out.println("JSON LOGIN: " + inputJson);
   	  	        	Map<String, String> headers = new HashMap<String, String>();
   	  	        	headers.put("Content-Type", "application/json; charset=utf-8");
-  	  	        	responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_LOGIN_CLINICA, inputJson, headers);
+  	  	        	responseData  = RsSiteds.sendPostRequest(GlobalConstants.API_LOGIN_CLINICA, inputJson, headers);
   	  	        }
   	  	    	catch(Exception ex) {
   	  	    		mapResponse.put("excepcion", "Ha ocurrido un error al ingresar con el número de documento.");
   	  	    		return mapResponse;
   	  	    	}
   	  	    	
+  	        	System.out.println("JSON RESPONSE LOGIN: " + responseData.getResponseBody() + " CON CODIGO: " + responseData.getStatusCode());
+
+  	  	    	
   	  	        jsonReader = Json.createReader(new StringReader(responseData.getResponseBody()));
   	  	        jsonObject = jsonReader.readObject();
   	  	        mapResponse.put("token", jsonObject.getString("token"));
-  	  	    	
   	        	return mapResponse;
   	        	
   	        }
