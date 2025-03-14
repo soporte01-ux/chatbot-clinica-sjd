@@ -7,6 +7,8 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Timestamp;
@@ -121,7 +123,7 @@ public class RsSiteds {
 			Map<String, String> headers = new HashMap<String, String>();
 	        headers.put("Content-Type", "application/json; charset=utf-8");
 	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-	        responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_ENTIDAD_VINCULADA, inputJson, headers);
+	        responseData  = sendPostRequest(GlobalSitedsConstants.SITEDS_ENTIDAD_VINCULADA, inputJson, headers);
 	        response = responseData.getResponseBody();
 	        System.out.println("RESPONSE ENTIDAD VINCULADA: " + response);
 			
@@ -154,7 +156,7 @@ public class RsSiteds {
 				Map<String, String> headers = new HashMap<String, String>();
 		        headers.put("Content-Type", "application/json; charset=utf-8");
 		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		        responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_ASEGURADO_NOMBRE, inputJson, headers);
+		        responseData  = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_NOMBRE, inputJson, headers);
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE ASEGURADO POR NOMBRE: " + response);
 				
@@ -1005,39 +1007,50 @@ public class RsSiteds {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-        // Configurar la conexión
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setConnectTimeout(50000);
-        connection.setReadTimeout(40000);
-        // Agregar encabezados
-        for (Map.Entry<String, String> header : headers.entrySet()) {
-            connection.setRequestProperty(header.getKey(), header.getValue());
-        }
-
-        // Enviar datos JSON
-        try (OutputStream os = connection.getOutputStream()) {
-            os.write(inputJson.getBytes("UTF-8"));
-            os.flush();
-        }
-
-        // Leer respuesta
-        int responseCode = connection.getResponseCode();
-        String responseBody = "";
-
-        if (responseCode >= 200 && responseCode < 300) { // Respuesta exitosa
-            try (InputStream is = connection.getInputStream()) {
-                responseBody = new String(is.readAllBytes(), "UTF-8");
+        try {          
+            // Configurar la conexión
+            connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setConnectTimeout(50000);
+            connection.setReadTimeout(40000);
+            // Agregar encabezados
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                connection.setRequestProperty(header.getKey(), header.getValue());
             }
-        } else { // Respuesta con error
-            try (InputStream es = connection.getErrorStream()) {
-                responseBody = new String(es.readAllBytes(), "UTF-8");
-            }
-        }
 
-        // Devolver el resultado
-        return new HttpResponse(Integer.valueOf(responseCode), responseBody, "");
+            // Enviar datos JSON
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(inputJson.getBytes("UTF-8"));
+                os.flush();
+            }
+
+            // Leer respuesta
+            int responseCode = connection.getResponseCode();
+            String responseBody = "";
+
+            if (responseCode >= 200 && responseCode < 300) { // Respuesta exitosa
+                try (InputStream is = connection.getInputStream()) {
+                    responseBody = new String(is.readAllBytes(), "UTF-8");
+                }
+            } else { // Respuesta con error
+                try (InputStream es = connection.getErrorStream()) {
+                    responseBody = new String(es.readAllBytes(), "UTF-8");
+                }
+            }
+
+            // Devolver el resultado
+            return new HttpResponse(Integer.valueOf(responseCode), responseBody, "");
+		} 
+        catch (SocketTimeoutException e) {
+            throw new Exception("Tiempo de espera excedido al conectar con el servicio. Por favor, inténtelo más tarde.", e);
+        }
+        finally {
+            if (connection != null) {
+                connection.disconnect();  // Asegurar que la conexión se cierre
+            }
+		}
+
     }
     
     private String timeConvertToIso(String fechaObtenida) {

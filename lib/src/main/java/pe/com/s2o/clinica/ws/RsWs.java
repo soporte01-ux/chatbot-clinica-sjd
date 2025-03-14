@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
+import pe.com.s2o.clinica.whatsapp.GlobalConstants;
+
 
 @ServerEndpoint(value = "/chat", configurator = FilterWsConfig.class)
 public class RsWs {
@@ -30,10 +33,6 @@ public class RsWs {
     private static final Map<String, List<String>> messageHistory = new ConcurrentHashMap<>();
     private static final Set<Session> clients = new CopyOnWriteArraySet<>();
     private static final Map<Session, String> activeConversations = new ConcurrentHashMap<>();
-
-    //private static final String PHONE_NUMBER_ID = "463180813536065"; //TEST
-    private static final String PHONE_NUMBER_ID = "495937826942529"; //REAL
-    private static final String ACCESS_TOKEN = "EAAHAX9FaMMoBO7aUq7V6HsZC3gkHMl5BxC9NiTxon57LyO3IzrSG6xp9jUUQ4PWgGlIjb5UllybHXmiZCq8TKdiexgLssxP81HQo0kxNea9f6Sd3SJUZAIT4ctFgqFPZAtGgcvndM4FBu3rdkPkZBj6VQwgEqTei8gTkqCvCmrZC7NtxIhCURf0j5qgDUPmrtTdQZDZD";
     
     private static final Set<String> closedConversations = new CopyOnWriteArraySet<>();
 
@@ -62,39 +61,18 @@ public class RsWs {
     @OnMessage
     public void onMessage(String message, Session session) {
         try {
-        	
-        	JsonObject jsonMessage = null;
-            if (message != null && message.trim().startsWith("{") && message.trim().endsWith("}")) {
-                try {
-                    jsonMessage = JsonParser.parseString(message).getAsJsonObject();
-                } catch (JsonSyntaxException e) {
-                    System.err.println("Error de sintaxis JSON: " + e.getMessage());
-                }
-            }
 
-            if (jsonMessage != null && "authentication".equals(jsonMessage.get("type").getAsString())) {
-                String token = jsonMessage.get("token").getAsString();
-                if (tokenValidator.validateToken(token)) {
-                	System.out.println("TOKEN VALIDO");
-                    session.getUserProperties().put("authenticated", true);
-                    session.getBasicRemote().sendText("{\"type\":\"auth_response\",\"status\":\"success\"}");
-                    return;
-                } else {
-                	System.out.println("INVALID TOKEN");
-                    session.getBasicRemote().sendText("{\"type\":\"auth_response\",\"status\":\"error\",\"message\":\"Invalid token\"}");
-                    session.close();
-                    return;
-                }
-            }
-
-            // Verificar autenticación para todos los demás mensajes
-            if (session.getUserProperties().get("authenticated") == null) {
-            	System.out.println("AUNTENTICADO");
-                session.getBasicRemote().sendText("{\"type\":\"error\",\"message\":\"Not authenticated\"}");
-                session.close();
-                return;
-            }
         	
+        	if (message.startsWith("IMAGE:")) {
+        	    String[] parts = message.split(":", 3);
+        	    if (parts.length == 3) {
+        	        String to = parts[1].trim();
+        	        String imageUrl = parts[2].trim();
+        	        saveMessage(to, "SENT_IMAGE: " + imageUrl);
+        	        sendImageToWhatsApp(to, imageUrl);
+        	    }
+        	    return;
+        	}
         	
             if (message.startsWith("CLOSE_CONVERSATION:")) {
                 String phoneNumber = activeConversations.get(session);
@@ -225,6 +203,45 @@ public class RsWs {
         sendHttpRequest(requestBody);
     }
 
+    public void sendImageToWhatsApp(String to, String imageUrl) {
+        try {
+            String apiUrl = "https://graph.facebook.com/v20.0/" + GlobalConstants.PHONE_NUMBER_ID + "/messages";
+
+            String jsonPayload = "{"
+                + "\"messaging_product\": \"whatsapp\","
+                + "\"to\": \"" + to + "\","
+                + "\"type\": \"image\","
+                + "\"image\": {\"link\": \"" + imageUrl + "\"}"
+                + "}";
+
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Authorization", "Bearer " + GlobalConstants.API_ACCESS_TOKEN);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+            
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonPayload.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+            System.out.println("WhatsApp Response Code: " + responseCode);
+            
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                System.out.println("✅ Imagen enviada correctamente a " + to);
+            } else {
+                System.out.println("❌ Error al enviar la imagen: " + responseCode);
+            }
+
+            connection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendEndedMessageToWhatsApp(String to) {
 		String requestBody = "{\r\n"
 				+ "    \"messaging_product\": \"whatsapp\",\r\n"
@@ -261,10 +278,10 @@ public class RsWs {
     
     private void sendHttpRequest(String requestBody) {
         try {
-            URL url = new URL("https://graph.facebook.com/v20.0/" + PHONE_NUMBER_ID + "/messages");
+            URL url = new URL("https://graph.facebook.com/v20.0/" + GlobalConstants.PHONE_NUMBER_ID + "/messages");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Authorization", "Bearer " + ACCESS_TOKEN);
+            conn.setRequestProperty("Authorization", "Bearer " + GlobalConstants.API_ACCESS_TOKEN);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setDoOutput(true);
 

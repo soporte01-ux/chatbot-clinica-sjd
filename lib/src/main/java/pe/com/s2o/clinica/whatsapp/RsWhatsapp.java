@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -966,7 +967,7 @@ public class RsWhatsapp {
 				Map<String, String> headers = new HashMap<String, String>();
 				headers.put("Content-Type", "application/json; charset=utf-8");
 				System.out.println("INPUT JSON AUTORIZACION WSP: " + inputJson);
-				responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_BASE_CLINICA_BOT + "/rs/siteds/v1/autorizacionSiteds", inputJson, headers);
+				responseData  = RsSiteds.sendPostRequest( GlobalConstants.API_BASE_CLINICA_BOT + "/rs/siteds/v1/autorizacionSiteds", inputJson, headers);
 				response = responseData.getResponseBody();
 				if(response.contains("\"nroAutorizacion\":null")) {
 					sendMessageFinalizar(to, "No se pudo obtener el codigo de autorización, comunicate con un administrador.");
@@ -1077,8 +1078,9 @@ public class RsWhatsapp {
 	        Map<String, String> headers = new HashMap<String, String>();
 	        headers.put("Content-Type", "application/json; charset=utf-8");
 	        headers.put("Authorization", "Bearer " + token);	        
-	        responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_REGISTRAR_CITA_SEGURO, jsonPago, headers);
+	        responseData  = RsSiteds.sendPostRequest(GlobalConstants.API_REGISTRAR_CITA_SEGURO, jsonPago, headers);
 	        response = responseData.getResponseBody();
+	        System.out.println("RESPONSE RESERVA PAGO COMPLETO: " + response);
 			
 		} catch (Exception e) {
 			sendMessageFinalizar(to, "😓 No se ha podido obtener el precio de la consulta para esta especialidad, intentalo nuevamente.");
@@ -1108,7 +1110,7 @@ public class RsWhatsapp {
 	    		String seguroElegido = seguro.get("descripcionSeguro").toString().replace("\"", "");
 	  		 
 	  		 
-	    		String informacionCita = "😄 ¡Genial, *"+ capitalizeFirstLetter(nombrePersona) +"*, estas a un paso de registrar tu cita!\\r\\n"
+	    		String informacionCita = "😄 ¡Genial, *"+ capitalizeFirstLetter(nombrePersona) +"*, se ha registrado tu cita correctamente!\\r\\n"
 	    				+ "\\r\\n"
 	    				+ "🩺 Especialidad: *"+ capitalizeFirstLetter(especialidadElegida) +"*\\r\\n"
 	    				+ "📅 Fecha: *"+ formaterDate(especialidadFechaElegido) +"*\\r\\n"
@@ -1289,12 +1291,18 @@ public class RsWhatsapp {
         		try {
         	        Map<String, String> headers = new HashMap<String, String>();
         	        headers.put("Content-Type", "application/json; charset=utf-8");
-        	        headers.put("Authorization", "Bearer " + token);
         	        String inputJson = String.format("{\"iafaAseguradora\":\"%s\",\"apPaterno\":\"%s\",\"apMaterno\":\"%s\",\"nombreCompleto\":\"%s\",\"tipoDocumento\":\"%s\",\"nroDocumento\":\"%s\"}", codIafa.replace("40007", "20001"), perApePaterno, perApeMaterno, nombreCompleto, tipoDocumento, nroDocumento);
-        	        responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.API_BASE_CLINICA_BOT + "/rs/siteds/v1/obtenerDatosSitets", inputJson, headers);
+        	        responseData  = RsSiteds.sendPostRequest(GlobalConstants.API_BASE_CLINICA_BOT + "/rs/siteds/v1/obtenerDatosSitets", inputJson, headers);
         	        response = responseData.getResponseBody();
         			
-        		} catch (Exception e) {
+        		} 
+        
+        		catch (SocketException e) {
+        			sendMessage(to, "Se ha excedido el tiempo de espera, reintentando...");
+        			return;
+        		}
+        		
+        		catch (Exception e) {
         			sendMessageFinalizar(to, "Su seguro no cuenta para hacer uso de *consulta ambulatoria* o no lo encontramos habilitado, intente con otra opción.");
         			return;
         		}
@@ -1312,6 +1320,11 @@ public class RsWhatsapp {
         		
         		if(response.contains("Error al consultar servicio ConCod.")) {
         			sendMessage(to, "Ocurrio un error al intentar consultar las coberturas, intentelo de nuevo más tarde.");
+        			return;
+        		}
+        		
+        		if(response.contains("No hay seguros activos para el paciente.")) {
+        			sendMessageFinalizar(to, "No hay seguros activos para el paciente, elige otra opción o finaliza.");
         			return;
         		}
         		
@@ -1656,7 +1669,7 @@ public class RsWhatsapp {
     		}
     		
     		mapConversation.put("lstEspecialidades", lstEspecialidades);
-    		sendMessageContinuar(to, "Elige alguna de nuestras especialidades para registrar una cita. 😊");
+    		sendMessageContinuar(to, "Digita el número de opcion de la especialidad para registrar una cita. 🥼🙌😊");
     	}
     	catch(Exception ex){
     		ex.printStackTrace();
@@ -1795,7 +1808,7 @@ public class RsWhatsapp {
     		}
     		
     		if(response.contains("No existe horario para esta Especialidad")) {
-    			sendMessageFinalizar(to, "No hay medicos con horarios disponibles para esta especialidad, finaliza e intenta con otra especialidad.");
+    			sendMessageContinuar(to, "No hay medicos con horarios disponibles para esta especialidad, finaliza e intenta con otra especialidad.");
     			return;
     		}
     		

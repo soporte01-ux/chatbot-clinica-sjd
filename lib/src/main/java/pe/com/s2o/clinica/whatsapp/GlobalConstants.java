@@ -10,6 +10,7 @@ public class GlobalConstants {
 	public static final String API_BASE_CLINICA_BOT = "http://localhost:8085/lib";
 	public static final String API_ACCESS_TOKEN  = "EAAHAX9FaMMoBO7aUq7V6HsZC3gkHMl5BxC9NiTxon57LyO3IzrSG6xp9jUUQ4PWgGlIjb5UllybHXmiZCq8TKdiexgLssxP81HQo0kxNea9f6Sd3SJUZAIT4ctFgqFPZAtGgcvndM4FBu3rdkPkZBj6VQwgEqTei8gTkqCvCmrZC7NtxIhCURf0j5qgDUPmrtTdQZDZD";
 	*/
+	
 	//PRODUCCION
 	
 	public static final String API_BASE_CLINICA = "https://melany.s2o.pe/clinica-app";
@@ -18,6 +19,16 @@ public class GlobalConstants {
 	public static final String API_BASE_CLINICA_BOT = "https://sofia.s2o.pe/clinica-aqp";
 	public static final String API_ACCESS_TOKEN = "EAAIgsizmjpwBOyyPZCeWdDiga4mZCNc9kciTyRy3pn6IVgJ5y2Ro7ebswoZAOAGBq9rZBXhrxbZAZArEYxZCiBcgsVPlIGPIWYOByTHGCZCj1vKAezWpZBZCLtya7gRbaSfIAxKYBljwkq7rOivMuYM589SsnrrMnCpoqhptYnYCg4iYSZAbiTGG8bEGiwCUcjZASX6rzQZDZD";
 	
+	
+	//PRODUCCION-CLINICA-DOCKER-PROPIO
+	
+	/*
+	public static final String API_BASE_CLINICA = "https://clinica.s2o.pe/clinica-app";
+	public static final String PHONE_NUMBER_ID = "463180813536065";
+	public static final String API_BASE_NIUBIZ = "https://clinica.s2o.pe";
+	public static final String API_BASE_CLINICA_BOT = "https://sofia.s2o.pe/clinica-aqp-test";
+	public static final String API_ACCESS_TOKEN  = "EAAHAX9FaMMoBO7aUq7V6HsZC3gkHMl5BxC9NiTxon57LyO3IzrSG6xp9jUUQ4PWgGlIjb5UllybHXmiZCq8TKdiexgLssxP81HQo0kxNea9f6Sd3SJUZAIT4ctFgqFPZAtGgcvndM4FBu3rdkPkZBj6VQwgEqTei8gTkqCvCmrZC7NtxIhCURf0j5qgDUPmrtTdQZDZD";
+	*/
 	
 	public static final String API_VERIFY_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MzY4MzU2MTgsImV4cCI6MTc2ODM3MTYxOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.NGXtephaYXdLxxPHHKK1GTvX9xF0d1E3YWyYCiLN4D0";
 	public static final String API_SITEDS_CONSULTA_DOCUMENTO = "http://200.39.148.101:8180/sofia-ws-common/rs/afl/qoAfiliado";
