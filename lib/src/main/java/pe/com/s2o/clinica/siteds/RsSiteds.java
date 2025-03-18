@@ -108,7 +108,7 @@ public class RsSiteds {
 	  JsonObject jsonObject = null;  	       
 	  JsonArray jsonArray = null;
 	  
-      inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"caIPRESS\":\"%s\",\"noIPRESS\":\"%s\",\"tiDoIPRESS\":\"%s\",\"nuRucIPRESS\":\"%s\"}", 			GlobalSitedsConstants.SITEDS_NONCE, 
+      inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"caIPRESS\":\"%s\",\"noIPRESS\":\"%s\",\"tiDoIPRESS\":\"%s\",\"nuRucIPRESS\":\"%s\",\"nuRucRemitente\":\"%s\"}", 			GlobalSitedsConstants.SITEDS_NONCE, 
     		GlobalSitedsConstants.SITEDS_PASSWORD, 
     		GlobalSitedsConstants.SITEDS_USER, 
     		GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
@@ -116,6 +116,7 @@ public class RsSiteds {
     		GlobalSitedsConstants.SITEDS_CA_IPRESS, 
     		GlobalSitedsConstants.SITEDS_NO_IPRESS, 
     		GlobalSitedsConstants.SITEDS_TI_DO_IPRESS, 
+    		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS,
     		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
     		  );
 		try {
@@ -139,7 +140,7 @@ public class RsSiteds {
 			throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "El paciente no cuenta con afiliación al seguro.");
 		}
       
-	  	  inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"apPaternoPaciente\":\"%s\",\"apMaternoPaciente\":\"%s\",\"noPaciente\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\"}", 
+	  	  inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"apPaternoPaciente\":\"%s\",\"apMaternoPaciente\":\"%s\",\"noPaciente\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
 	  			GlobalSitedsConstants.SITEDS_NONCE,
 	  			GlobalSitedsConstants.SITEDS_PASSWORD,
 	  			GlobalSitedsConstants.SITEDS_USER,
@@ -149,7 +150,8 @@ public class RsSiteds {
 	  			apMaternoPaciente, 
 	  			nombrePaciente, 
 	  			tipoDocPaciente, 
-	  			numeroDocPaciente
+	  			numeroDocPaciente,
+	  			GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
 	  	);
 			try {
 		        System.out.println("JSON ASEGURADO POR NOMBRE: " + inputJson);
@@ -209,7 +211,7 @@ public class RsSiteds {
         }
       
         
-        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\"}", 
+        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
         		GlobalSitedsConstants.SITEDS_NONCE,
         		GlobalSitedsConstants.SITEDS_PASSWORD,
         		GlobalSitedsConstants.SITEDS_USER, 
@@ -229,7 +231,8 @@ public class RsSiteds {
         		noMaContratante, 
         		tiDoContratante, 
         		idReContratante, 
-        		coReContratante
+        		coReContratante,
+        		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
         	);
 			try {
 		        System.out.println("JSON ASEGURADO POR CODIGO: " + inputJson);
@@ -308,7 +311,7 @@ public class RsSiteds {
         String coEspecialidad = "";
         
         
-        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\"}", 
+        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
         		GlobalSitedsConstants.SITEDS_NONCE,
         		GlobalSitedsConstants.SITEDS_PASSWORD,
         		GlobalSitedsConstants.SITEDS_USER, 
@@ -326,7 +329,8 @@ public class RsSiteds {
  				 noMaContratante, 
  				 tiDoContratante, 
  				 idReContratante, 
- 				 coReContratante
+ 				 coReContratante,
+ 				 GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
  			);
 			try {
 		        System.out.println("JSON CONDICIONES MEDICAS: " + inputJson);
@@ -358,7 +362,7 @@ public class RsSiteds {
 		  	  
 		  	  
         
-        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\"}", 
+        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
         		GlobalSitedsConstants.SITEDS_NONCE,
         		GlobalSitedsConstants.SITEDS_PASSWORD,
         		GlobalSitedsConstants.SITEDS_USER, 
@@ -377,7 +381,8 @@ public class RsSiteds {
  				 noMaContratante, 
  				 tiDoContratante, 
  				 idReContratante, 
- 				 coReContratante
+ 				 coReContratante,
+ 				GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
  			);
 			try {
 		        System.out.println("JSON OBSERVACIONES: " + inputJson);
@@ -409,7 +414,7 @@ public class RsSiteds {
   	  String obsAsegurado = jsonObject.isNull("teMsgLibre1") ? null : jsonObject.getString("teMsgLibre1").trim().isEmpty() ? jsonObject.getString("teMsgLibre1").trim() + " " + jsonObject.getString("rptObs").trim() : 							!jsonObject.isNull("rptObs") ? jsonObject.getString("rptObs").trim() : "";
   	  String obsAdicional = jsonObject.isNull("teMsgLibre2") ? null : jsonObject.getString("teMsgLibre2").trim().isEmpty() ? "" : jsonObject.getString("teMsgLibre2") ;	  
   	  
-  	inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuCobertura\":\"%s\",\"deCobertura\":\"%s\",\"caServicio\":\"%s\",\"coCalservicio\":\"%s\",\"beMaxInicial\":\"%s\",\"coTiCobertura\":\"%s\",\"coSuTiCobertura\":\"%s\",\"coAplicativoTx\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\"}", 
+  	inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuCobertura\":\"%s\",\"deCobertura\":\"%s\",\"caServicio\":\"%s\",\"coCalservicio\":\"%s\",\"beMaxInicial\":\"%s\",\"coTiCobertura\":\"%s\",\"coSuTiCobertura\":\"%s\",\"coAplicativoTx\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuRucRemitente\":\"%s\"}",
   				GlobalSitedsConstants.SITEDS_NONCE,
     			GlobalSitedsConstants.SITEDS_PASSWORD,
     			GlobalSitedsConstants.SITEDS_USER, 
@@ -437,7 +442,9 @@ public class RsSiteds {
 				 coSuTiCobertura, 
 				 coAplicativoTx, 
 				 coEspecialidad, 
-				 coParentesco
+				 coParentesco,
+				 GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
+				 
 			);
 			try {
 		        System.out.println("JSON PROCEDIMIENTOS: " + inputJson);
@@ -742,8 +749,8 @@ public class RsSiteds {
 	  	String coPaisRegafi = "";
 	  	String idReRegafi = "";
 	  	String response = "";
-	  	String jsonTemplate = "{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"apPaternoPaciente\":\"%s\",\"apMaternoPaciente\":\"%s\",\"noPaciente\":\"%s\",\"tiDoPaciente\":\"%s\",\"nuDoPaciente\":\"%s\",\"caPaciente\":\"%s\",\"coAfPaciente\":\"%s\",\"coEsPaciente\":\"%s\",\"coAdmisionista\":\"%s\",\"nuIdenEmpleador\":\"%s\",\"nuContratoPaciente\":\"%s\",\"nuPoliza\":\"%s\",\"nuCertificado\":\"%s\",\"coTiPolizaAfiliacion\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiPlanSalud\":\"%s\",\"coMoneda\":\"%s\",\"coParentesco\":\"%s\",\"soBeneficio\":\"%s\",\"nuSoBeneficio\":\"%s\",\"coEspecialidad\":\"%s\",\"feNacimiento\":\"%s\",\"genero\":\"%s\",\"esMarital\":\"%s\",\"feIniVigencia\":\"%s\",\"feFinVigencia\":\"%s\",\"esCobertura\":\"%s\",\"nuDecAccidente\":\"%s\",\"idInfAccidente\":\"%s\",\"deTiAccidente\":\"%s\",\"feAfiliacion\":\"%s\",\"feOcuAccidente\":\"%s\",\"nuAtencion\":\"%s\",\"idDerFarmacia\":\"%s\",\"tiProducto\":\"%s\",\"deProductoDeFarmacia\":\"%s\",\"feAtencion\":\"%s\",\"caContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noMaContratante\":\"%s\",\"noContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"caTitular\":\"%s\",\"noPaTitular\":\"%s\",\"noTitular\":\"%s\",\"coAfTitular\":\"%s\",\"noMaTitular\":\"%s\",\"tiDoTitular\":\"%s\",\"idReTitular\":\"%s\",\"nuDoTitular\":\"%s\",\"feIncTitular\":\"%s\",\"nuCobertura\":\"%s\",\"obsCobertura\":\"%s\",\"msgObs\":\"%s\",\"msgConEspeciales\":\"%s\",\"nuCobPreExistencia\":\"%s\",\"beMaxInicial\":\"%s\",\"canServicio\":\"%s\",\"idDeProducto\":\"%s\",\"coTiCobertura\":\"%s\",\"coSubTiCobertura\":\"%s\",\"msgObsPre\":\"%s\",\"msgConEspecialesPre\":\"%s\",\"coTiMoneda\":\"%s\",\"coPagoFijo\":\"%s\",\"coCalServicio\":\"%s\",\"canCalServicio\":\"%s\",\"coPagoVariable\":\"%s\",\"flagCG\":\"%s\",\"deflagCG\":\"%s\",\"feFinCarencia\":\"%s\",\"feFinEspera\":\"%s\",\"caRegafi\":\"%s\",\"noPaRegafi\":\"%s\",\"noRegafi\":\"%s\",\"coAfRegafi\":\"%s\",\"noMaRegafi\":\"%s\",\"tiDoRegafi\":\"%s\",\"nuDoRegafi\":\"%s\",\"feNaRegafi\":\"%s\",\"geRegafi\":\"%s\",\"coPaisRegafi\":\"%s\",\"idReRegafi\":\"%s\",\"detalleProEsp\":%s,\"detalleTieEsp\":%s,\"detalleExeCar\":%s,\"detalleRes\":%s}";
-	    String inputJson = String.format(jsonTemplate, GlobalSitedsConstants.SITEDS_NONCE, GlobalSitedsConstants.SITEDS_PASSWORD, GlobalSitedsConstants.SITEDS_USER, GlobalSitedsConstants.SITEDS_ID_REMITENTE, idReceptor, apPaternoPaciente, apMaternoPaciente, noPaciente, tiDoPaciente, nuDoPaciente, caPaciente, coAfPaciente, coEsPaciente, coAdmisionista, nuIdEmpleador, nuContratoPaciente, nuPoliza, nuCertificado, coTiPoliza, coProducto, deProducto, nuPlan, tiPlanSalud, coMoneda, coParentesco, soBeneficio, nuSoBeneficio, coEspecialidad, feNacimiento, genero, esMarital, feIniVigencia, feFinVigencia,esCobertura, nuDecAccidente, idInfAccidente, deTiAccidente, feAfiliacion, feOcuAccidente, nuAtencion, idDerFarmacia, tiProducto, deProductoDeFarmacia, feAtencion, caContrantante, noPaContratante, noMaContratante, noContratante, tiDoContratante, idReContratante, coReContratante, caTitular, noPaTitular, noTitular, coAfTitular, noMaTitular, tiDoTitular, idReTitular, nuDoTitular, feInsTitular, nuCobertura, obsCobertura, msgObs, msgConEspeciales, nuCobPreExistencia, beMaxInicial, canServicio, idProducto, coTiCobertura, coSubTiCobertura, msgObsPre, msgConEspecialesPre, coTiMoneda, coPagoFijo, coCalServicio, canCalServicio, coPagoVariable, flagCG, detFlagCG, feFinCarencia, feFinEspera, caRegafi, noPaRegafi, noRegafi, coAfRegafi, noMaRegafi, tiDoRegafi, nuDoRegafi, feNaRegafi, geRegafi, coPaisRegafi, idReRegafi, detalleProEsp, detalleTieEsp, detalleExeCar, detalleRestric);
+	  	String jsonTemplate = "{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"apPaternoPaciente\":\"%s\",\"apMaternoPaciente\":\"%s\",\"noPaciente\":\"%s\",\"tiDoPaciente\":\"%s\",\"nuDoPaciente\":\"%s\",\"caPaciente\":\"%s\",\"coAfPaciente\":\"%s\",\"coEsPaciente\":\"%s\",\"coAdmisionista\":\"%s\",\"nuIdenEmpleador\":\"%s\",\"nuContratoPaciente\":\"%s\",\"nuPoliza\":\"%s\",\"nuCertificado\":\"%s\",\"coTiPolizaAfiliacion\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiPlanSalud\":\"%s\",\"coMoneda\":\"%s\",\"coParentesco\":\"%s\",\"soBeneficio\":\"%s\",\"nuSoBeneficio\":\"%s\",\"coEspecialidad\":\"%s\",\"feNacimiento\":\"%s\",\"genero\":\"%s\",\"esMarital\":\"%s\",\"feIniVigencia\":\"%s\",\"feFinVigencia\":\"%s\",\"esCobertura\":\"%s\",\"nuDecAccidente\":\"%s\",\"idInfAccidente\":\"%s\",\"deTiAccidente\":\"%s\",\"feAfiliacion\":\"%s\",\"feOcuAccidente\":\"%s\",\"nuAtencion\":\"%s\",\"idDerFarmacia\":\"%s\",\"tiProducto\":\"%s\",\"deProductoDeFarmacia\":\"%s\",\"feAtencion\":\"%s\",\"caContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noMaContratante\":\"%s\",\"noContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"caTitular\":\"%s\",\"noPaTitular\":\"%s\",\"noTitular\":\"%s\",\"coAfTitular\":\"%s\",\"noMaTitular\":\"%s\",\"tiDoTitular\":\"%s\",\"idReTitular\":\"%s\",\"nuDoTitular\":\"%s\",\"feIncTitular\":\"%s\",\"nuCobertura\":\"%s\",\"obsCobertura\":\"%s\",\"msgObs\":\"%s\",\"msgConEspeciales\":\"%s\",\"nuCobPreExistencia\":\"%s\",\"beMaxInicial\":\"%s\",\"canServicio\":\"%s\",\"idDeProducto\":\"%s\",\"coTiCobertura\":\"%s\",\"coSubTiCobertura\":\"%s\",\"msgObsPre\":\"%s\",\"msgConEspecialesPre\":\"%s\",\"coTiMoneda\":\"%s\",\"coPagoFijo\":\"%s\",\"coCalServicio\":\"%s\",\"canCalServicio\":\"%s\",\"coPagoVariable\":\"%s\",\"flagCG\":\"%s\",\"deflagCG\":\"%s\",\"feFinCarencia\":\"%s\",\"feFinEspera\":\"%s\",\"caRegafi\":\"%s\",\"noPaRegafi\":\"%s\",\"noRegafi\":\"%s\",\"coAfRegafi\":\"%s\",\"noMaRegafi\":\"%s\",\"tiDoRegafi\":\"%s\",\"nuDoRegafi\":\"%s\",\"feNaRegafi\":\"%s\",\"geRegafi\":\"%s\",\"coPaisRegafi\":\"%s\",\"idReRegafi\":\"%s\",\"detalleProEsp\":%s,\"detalleTieEsp\":%s,\"detalleExeCar\":%s,\"detalleRes\":%s,\"nuRucRemitente\":\"%s\"}";
+	    String inputJson = String.format(jsonTemplate, GlobalSitedsConstants.SITEDS_NONCE, GlobalSitedsConstants.SITEDS_PASSWORD, GlobalSitedsConstants.SITEDS_USER, GlobalSitedsConstants.SITEDS_ID_REMITENTE, idReceptor, apPaternoPaciente, apMaternoPaciente, noPaciente, tiDoPaciente, nuDoPaciente, caPaciente, coAfPaciente, coEsPaciente, coAdmisionista, nuIdEmpleador, nuContratoPaciente, nuPoliza, nuCertificado, coTiPoliza, coProducto, deProducto, nuPlan, tiPlanSalud, coMoneda, coParentesco, soBeneficio, nuSoBeneficio, coEspecialidad, feNacimiento, genero, esMarital, feIniVigencia, feFinVigencia,esCobertura, nuDecAccidente, idInfAccidente, deTiAccidente, feAfiliacion, feOcuAccidente, nuAtencion, idDerFarmacia, tiProducto, deProductoDeFarmacia, feAtencion, caContrantante, noPaContratante, noMaContratante, noContratante, tiDoContratante, idReContratante, coReContratante, caTitular, noPaTitular, noTitular, coAfTitular, noMaTitular, tiDoTitular, idReTitular, nuDoTitular, feInsTitular, nuCobertura, obsCobertura, msgObs, msgConEspeciales, nuCobPreExistencia, beMaxInicial, canServicio, idProducto, coTiCobertura, coSubTiCobertura, msgObsPre, msgConEspecialesPre, coTiMoneda, coPagoFijo, coCalServicio, canCalServicio, coPagoVariable, flagCG, detFlagCG, feFinCarencia, feFinEspera, caRegafi, noPaRegafi, noRegafi, coAfRegafi, noMaRegafi, tiDoRegafi, nuDoRegafi, feNaRegafi, geRegafi, coPaisRegafi, idReRegafi, detalleProEsp, detalleTieEsp, detalleExeCar, detalleRestric, GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS);
 	      
 	  		try {
 	  	        System.out.println("JSON AUTORIZACION: " + inputJson);
@@ -833,6 +840,7 @@ public class RsSiteds {
 	    		+ "\"flagCartaGarantia\":\"%s\","
 	    		+ "\"deFlagCartaGarantia\":\"%s\","
 	    		+ "\"nuControl\":\"%s\","
+	    		+ "\"nuRucRemitente\":\"%s\","
 	    		+ "\"nuControlST\":\"%s\"}",
 	    		GlobalSitedsConstants.SITEDS_NONCE,
 	    		GlobalSitedsConstants.SITEDS_PASSWORD, 
@@ -877,6 +885,7 @@ public class RsSiteds {
 	    		flagCG,
 	    		detFlagCG,
 	    		nuControl,
+	    		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS,
 	    		nuControlST
 	    );
 	      
