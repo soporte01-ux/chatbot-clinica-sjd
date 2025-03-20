@@ -1,6 +1,7 @@
 package pe.com.s2o.clinica.siteds;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -239,10 +240,7 @@ public class RsSiteds {
 				Map<String, String> headers = new HashMap<String, String>();
 		        headers.put("Content-Type", "application/json; charset=utf-8");
 		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CODIGO, inputJson, Map.of(
-	                    "Content-Type", "application/json; charset=utf-8",
-	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN // Reemplaza con tu token real
-	                ));
+		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE ASEGURADO POR CODIGO: " + response);
 				
@@ -339,10 +337,7 @@ public class RsSiteds {
 		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
 		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, headers);
 		        
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CONDICIONES_MEDICAS, inputJson, Map.of(
-	                    "Content-Type", "application/json; charset=utf-8",
-	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
-	                ));
+		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CONDICIONES_MEDICAS, inputJson, headers);
 		        
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE CONDICIONES MEDICAS: " + response);
@@ -391,10 +386,7 @@ public class RsSiteds {
 		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
 		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, headers);
 		        
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, Map.of(
-	                    "Content-Type", "application/json; charset=utf-8",
-	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
-	                ));
+		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, headers);
 		        
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE OBSERVACIONES: " + response);
@@ -453,10 +445,7 @@ public class RsSiteds {
 		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
 		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_PROCEDIMIENTOS, inputJson, headers);
 		        
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_PROCEDIMIENTOS, inputJson, Map.of(
-	                    "Content-Type", "application/json; charset=utf-8",
-	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
-	                ));
+		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_PROCEDIMIENTOS, inputJson, headers);
 		        
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE PROCEDIMIENTOS: " + response);
@@ -758,10 +747,7 @@ public class RsSiteds {
 	  	        headers.put("Content-Type", "application/json; charset=utf-8");
 	  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
 	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
-	  	      responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, Map.of(
-	                    "Content-Type", "application/json; charset=utf-8",
-	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
-	                ));
+	  	      responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
 	  	        response = responseData.getResponseBody();
 	  	        System.out.println("RESPONSE AUTORIZACION: " + response);
 	  			
@@ -894,11 +880,8 @@ public class RsSiteds {
 	  			Map<String, String> headers = new HashMap<String, String>();
 	  	        headers.put("Content-Type", "application/json; charset=utf-8");
 	  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
-	  	      responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ACREDITACION, inputJson, Map.of(
-	                    "Content-Type", "application/json; charset=utf-8",
-	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
-	                ));
+	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACIONß, inputJson, headers);
+	  	      responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ACREDITACION, inputJson, headers);
 	  	        response = responseData.getResponseBody();
 	  	        System.out.println("RESPONSE ACREDITACION: " + response);
 	  			
@@ -944,10 +927,7 @@ public class RsSiteds {
 		  	        headers.put("Content-Type", "application/json; charset=utf-8");
 		  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
 		  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
-		  	        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ENVIARRECIBIR, inputJson, Map.of(
-		                    "Content-Type", "application/json; charset=utf-8",
-		                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN
-		                ));
+		  	        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ENVIARRECIBIR, inputJson, headers);
 		  	        response = responseData.getResponseBody();
 		  	        System.out.println("RESPONSE ENVIAR RECIBIR: " + response);
 		  			
@@ -1040,11 +1020,25 @@ public class RsSiteds {
 
             if (responseCode >= 200 && responseCode < 300) { // Respuesta exitosa
                 try (InputStream is = connection.getInputStream()) {
-                    responseBody = new String(is.readAllBytes(), "UTF-8");
+                    // Alternativa compatible con Java 8
+                    ByteArrayOutputStream result = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = is.read(buffer)) != -1) {
+                        result.write(buffer, 0, length);
+                    }
+                    responseBody = new String(result.toByteArray(), "UTF-8");
                 }
-            } else { // Respuesta con error
-                try (InputStream es = connection.getErrorStream()) {
-                    responseBody = new String(es.readAllBytes(), "UTF-8");
+            }else { // Respuesta con error
+                try (InputStream is = connection.getInputStream()) {
+                    // Alternativa compatible con Java 8
+                    ByteArrayOutputStream result = new ByteArrayOutputStream();
+                    byte[] buffer = new byte[1024];
+                    int length;
+                    while ((length = is.read(buffer)) != -1) {
+                        result.write(buffer, 0, length);
+                    }
+                    responseBody = new String(result.toByteArray(), "UTF-8");
                 }
             }
 
