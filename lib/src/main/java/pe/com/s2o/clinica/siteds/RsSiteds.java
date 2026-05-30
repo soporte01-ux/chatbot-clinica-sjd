@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -45,6 +46,12 @@ import javax.ws.rs.core.Response;
 
 import com.luxor.modulos.web.util.dev.UtilAppDate;
 
+import pe.com.s2o.clinica.dtos.SitedsSolAutorizacionDetalleRes;
+import pe.com.s2o.clinica.dtos.SitedsSolAutorizacionDto;
+import pe.com.s2o.clinica.dtos.SitedsSolAutorizacionExeCarDto;
+import pe.com.s2o.clinica.dtos.SitedsSolAutorizacionProEspDto;
+import pe.com.s2o.clinica.dtos.SitedsSolAutorizacionRestricDto;
+import pe.com.s2o.clinica.dtos.SitedsSolAutorizacionTieEspDto;
 import pe.com.s2o.clinica.utils.HttpRequestUtil;
 import pe.com.s2o.clinica.utils.HttpRequestUtil.HttpResponse;
 import pe.com.s2o.clinica.whatsapp.GlobalConstants;
@@ -62,21 +69,27 @@ import static java.util.Map.*;
 @Path("siteds/v1")
 public class RsSiteds {
 
+    public static final String coAplicativoTx = "123456";
+    public static final String coEspecialidad = "";
+    public static final String deCobertura = "CONSULTA AMBULATORIA";
+    
     @POST
     @Path("obtenerDatosSitets")
     @Produces({"application/json"})
     @Consumes({"application/json"})
     public Map<String, Object> obtenerDatosSitets(Map<String, Object> mapAseguradora){
       String codIafa = Mapo.mstring(mapAseguradora, "iafaAseguradora");
-      //String apPaternoPaciente = Mapo.mstring(mapAseguradora, "apPaterno");
-      //String apMaternoPaciente = Mapo.mstring(mapAseguradora, "apMaterno");
-      String apPaternoPaciente = "";
-      String apMaternoPaciente = "";
+	  String apPaternoPaciente = "";
+	  String apMaternoPaciente = "";
+      if(GlobalConstants.CONFIG_GENERAL.getModule().equals("produccion")) {    	  
+    	  apPaternoPaciente = Mapo.mstring(mapAseguradora, "apPaterno");
+    	  apMaternoPaciente = Mapo.mstring(mapAseguradora, "apMaterno");
+      }
       String nombrePaciente = Mapo.mstring(mapAseguradora, "nombreCompleto");
       String tipoDocPaciente = Mapo.mstring(mapAseguradora, "tipoDocumento");
       String numeroDocPaciente = Mapo.mstring(mapAseguradora, "nroDocumento");
  
-      System.out.println("USUARIO: " + GlobalSitedsConstants.SITEDS_USER + ", END POINT: " +  GlobalSitedsConstants.SITEDS_BASE);
+      System.out.println("USUARIO: " + GlobalConstants.SITEDS_USER + ", END POINT: " +  GlobalConstants.SITEDS_BASE);
       
   	  String response = "";
   	  String inputJson = "";
@@ -103,29 +116,31 @@ public class RsSiteds {
       String idReContratante = "";
       String coReContratante = "";   
       String deProducto = ""; 
-      String coAplicativoTx = "123456";
+      
+      SitedsSolAutorizacionDto dtoSolAuto = new SitedsSolAutorizacionDto();
+      
 	  HttpResponse responseData = null;
 	  JsonReader jsonReader = null;
 	  JsonObject jsonObject = null;  	       
 	  JsonArray jsonArray = null;
 	  
-      inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"caIPRESS\":\"%s\",\"noIPRESS\":\"%s\",\"tiDoIPRESS\":\"%s\",\"nuRucIPRESS\":\"%s\",\"nuRucRemitente\":\"%s\"}", 			GlobalSitedsConstants.SITEDS_NONCE, 
-    		GlobalSitedsConstants.SITEDS_PASSWORD, 
-    		GlobalSitedsConstants.SITEDS_USER, 
-    		GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
+      inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"caIPRESS\":\"%s\",\"noIPRESS\":\"%s\",\"tiDoIPRESS\":\"%s\",\"nuRucIPRESS\":\"%s\",\"nuRucRemitente\":\"%s\"}", 			GlobalConstants.SITEDS_NONCE, 
+    		GlobalConstants.SITEDS_PASSWORD, 
+    		GlobalConstants.SITEDS_USER, 
+    		GlobalConstants.SITEDS_ID_REMITENTE, 
     		idReceptor, 
-    		GlobalSitedsConstants.SITEDS_CA_IPRESS, 
-    		GlobalSitedsConstants.SITEDS_NO_IPRESS, 
-    		GlobalSitedsConstants.SITEDS_TI_DO_IPRESS, 
-    		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS,
-    		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
+    		GlobalConstants.SITEDS_CA_IPRESS, 
+    		GlobalConstants.SITEDS_NO_IPRESS, 
+    		GlobalConstants.SITEDS_TI_DO_IPRESS, 
+    		GlobalConstants.SITEDS_NU_RUC_IPRESS,
+    		GlobalConstants.SITEDS_NU_RUC_IPRESS
     		  );
 		try {
 	        System.out.println("JSON ENTIDAD VINCULADA: " + inputJson);
 			Map<String, String> headers = new HashMap<String, String>();
 	        headers.put("Content-Type", "application/json; charset=utf-8");
-	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-	        responseData  = sendPostRequest(GlobalSitedsConstants.SITEDS_ENTIDAD_VINCULADA, inputJson, headers);
+	        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+	        responseData  = sendPostRequest(GlobalConstants.SITEDS_ENTIDAD_VINCULADA, inputJson, headers);
 	        response = responseData.getResponseBody();
 	        System.out.println("RESPONSE ENTIDAD VINCULADA: " + response);
 			
@@ -142,24 +157,24 @@ public class RsSiteds {
 		}
       
 	  	  inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"apPaternoPaciente\":\"%s\",\"apMaternoPaciente\":\"%s\",\"noPaciente\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
-	  			GlobalSitedsConstants.SITEDS_NONCE,
-	  			GlobalSitedsConstants.SITEDS_PASSWORD,
-	  			GlobalSitedsConstants.SITEDS_USER,
-	  			GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
+	  			GlobalConstants.SITEDS_NONCE,
+	  			GlobalConstants.SITEDS_PASSWORD,
+	  			GlobalConstants.SITEDS_USER,
+	  			GlobalConstants.SITEDS_ID_REMITENTE, 
 	  			idReceptor, 
 	  			apPaternoPaciente, 
 	  			apMaternoPaciente, 
 	  			nombrePaciente, 
 	  			tipoDocPaciente, 
 	  			numeroDocPaciente,
-	  			GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
+	  			GlobalConstants.SITEDS_NU_RUC_IPRESS
 	  	);
 			try {
 		        System.out.println("JSON ASEGURADO POR NOMBRE: " + inputJson);
 				Map<String, String> headers = new HashMap<String, String>();
 		        headers.put("Content-Type", "application/json; charset=utf-8");
-		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		        responseData  = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_NOMBRE, inputJson, headers);
+		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+		        responseData  = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_NOMBRE, inputJson, headers);
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE ASEGURADO POR NOMBRE: " + response);
 				
@@ -176,7 +191,133 @@ public class RsSiteds {
         jsonObject = null;
         
         boolean haySeguroSalud = false;
+        
+        boolean tieneCobertura4100 = false;
+        JsonArrayBuilder nuevoDetalleCoberturaArrayBuilder = Json.createArrayBuilder();
         for (int i = 0; i < jsonArray.size(); i++) {
+      	 jsonObject = jsonArray.getJsonObject(i);
+      	 coProducto = jsonObject.getString("coProducto");
+           coEsPaciente = jsonObject.getString("coEsPaciente");
+           nuDoPaciente = jsonObject.getString("nuDoPaciente");
+           coDescripcion = jsonObject.getString("coDescripcion");
+           String desc = coDescripcion.toUpperCase();
+           if(nuDoPaciente.equals(numeroDocPaciente)
+        	        && coEsPaciente.equals("1")
+        	        && !(desc.contains("SCTR")
+        	            || desc.contains("SEGURO COMPLEMENTARIO DE TRABAJO DE RIESGO"))) {
+                coAfPaciente = jsonObject.getString("coAfPaciente");
+                caPaciente = jsonObject.getString("caPaciente");
+                tiDoPaciente = jsonObject.getString("tiDoPaciente");
+                nuContratoPaciente = jsonObject.getString("nuContratoPaciente");
+                coDescripcion = jsonObject.getString("coDescripcion");
+                nuSCTR = jsonObject.getString("nuSCTR");
+                coParentesco = jsonObject.getString("coParentesco");
+                nuPlan = jsonObject.getString("nuPlan");
+                feNacimiento = jsonObject.getString("feNacimiento");
+                genero = jsonObject.getString("genero");
+                esMarital = jsonObject.getString("esMarital");
+                tiCaContratante = jsonObject.getString("tiCaContratante");
+                noPaContratante = jsonObject.getString("noPaContratante");
+                noContratante = jsonObject.getString("noContratante");
+                noMaContratante = jsonObject.getString("noMaContratante");
+                tiDoContratante = jsonObject.getString("tiDoContratante");
+                idReContratante = jsonObject.getString("idReContratante");
+                coReContratante = jsonObject.getString("coReContratante");
+                //haySeguroSalud = true;
+          	 //break;
+                inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
+                		GlobalConstants.SITEDS_NONCE,
+                		GlobalConstants.SITEDS_PASSWORD,
+                		GlobalConstants.SITEDS_USER, 
+                		GlobalConstants.SITEDS_ID_REMITENTE, 
+                		idReceptor, 
+                		tiDoPaciente,
+                		numeroDocPaciente, 
+                		coAfPaciente, 
+                		coProducto, 
+                		coDescripcion, 
+                		coEsPaciente, 
+                		coParentesco, 
+                		nuPlan, 
+                		tiCaContratante, 
+                		noPaContratante,
+                		noContratante, 
+                		noMaContratante, 
+                		tiDoContratante, 
+                		idReContratante, 
+                		coReContratante,
+                		GlobalConstants.SITEDS_NU_RUC_IPRESS
+                	);
+        			try {
+        		        System.out.println("JSON ASEGURADO POR CODIGO: " + inputJson);
+        				Map<String, String> headers = new HashMap<String, String>();
+        		        headers.put("Content-Type", "application/json; charset=utf-8");
+        		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+        		        responseData = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
+        		        response = responseData.getResponseBody();
+        		        System.out.println("RESPONSE ASEGURADO POR CODIGO: " + response);
+        				
+        			} catch (Exception e) {
+        	            //throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConCod.");
+        				continue;
+        			}
+          	  
+        			if(responseData.getStatusCode() == 500) {
+        				//throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConCod.");
+        				continue;
+        			}
+        			
+        	        jsonReader = Json.createReader(new StringReader(response));
+        	        JsonObject jsonResponse = jsonReader.readObject();
+        	        JsonArray detalleCobertura = jsonResponse.getJsonArray("detalleCobertura");
+        	        jsonObject = jsonResponse;
+        	        if (detalleCobertura != null && !detalleCobertura.isEmpty()) {
+        	            for (JsonValue coberturaValue : detalleCobertura) {
+        	                JsonObject cobertura = coberturaValue.asJsonObject();
+        	                if (cobertura.getString("coberturaCodigo").equals("4100")) {
+        	                	nuevoDetalleCoberturaArrayBuilder.add(cobertura);
+        	                    dtoSolAuto.setNuCobertura(cobertura.getString("nuCobertura"));
+        	                    dtoSolAuto.setObsCobertura("");
+        	                    dtoSolAuto.setMsgObs("");
+        	                    dtoSolAuto.setMsgConEspeciales("");
+        	                    dtoSolAuto.setNuCobPreExistencia("");
+        	                    dtoSolAuto.setBeMaxInicial(cobertura.getString("beMaxInicial"));
+        	                    dtoSolAuto.setCanServicio("1");
+        	                    dtoSolAuto.setIdDeProducto(cobertura.getString("idProducto"));
+        	                    dtoSolAuto.setCoTiCobertura(cobertura.getString("coTiCobertura"));
+        	                    dtoSolAuto.setCoSubTiCobertura(cobertura.getString("coSubTiCobertura"));
+        	                    dtoSolAuto.setMsgObsPre(cobertura.getString("msgConEspeciales"));
+        	                    dtoSolAuto.setMsgConEspecialesPre(cobertura.getString("msgConEspeciales"));
+        	                    dtoSolAuto.setCoTiMoneda(cobertura.getString("coTiMoneda"));
+        	                    dtoSolAuto.setCoPagoFijo(cobertura.getString("coPagoFijo"));
+        	                    dtoSolAuto.setCoCalServicio(cobertura.getString("coCalServicio"));
+        	                    dtoSolAuto.setCanCalServicio(cobertura.getString("canCalServicio"));
+        	                    dtoSolAuto.setCoPagoVariable(cobertura.getString("coPagoVariable"));
+        	                    dtoSolAuto.setFlagCG(cobertura.getString("flagCaGarantia"));
+        	                    dtoSolAuto.setDeflagCG(cobertura.getString("deflagCaGarantia"));
+        	                    dtoSolAuto.setFeFinCarencia("");
+        	                    if (cobertura.getString("feFinEspera") != null) {
+        	                        dtoSolAuto.setFeFinCarencia(cobertura.getString("feFinEspera"));
+        	                    }
+        	                    dtoSolAuto.setFeFinEspera(cobertura.getString("nuCobertura"));
+        	                    tieneCobertura4100 = true;
+        	                    break;
+        	                }
+        	            }
+        	        }
+
+        	        if (tieneCobertura4100) {
+        	            break;
+        	        }
+           }
+           
+        }
+        
+        if (!tieneCobertura4100) {
+            throw UtilResponse.rsException(Response.Status.NOT_FOUND, "No hay coberturas disponibles para el seguro elegido.");
+        }
+        
+        /*for (int i = 0; i < jsonArray.size(); i++) {
       	 jsonObject = jsonArray.getJsonObject(i);
       	 coProducto = jsonObject.getString("coProducto");
            coEsPaciente = jsonObject.getString("coEsPaciente");
@@ -213,10 +354,10 @@ public class RsSiteds {
       
         
         inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
-        		GlobalSitedsConstants.SITEDS_NONCE,
-        		GlobalSitedsConstants.SITEDS_PASSWORD,
-        		GlobalSitedsConstants.SITEDS_USER, 
-        		GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
+        		GlobalConstants.SITEDS_NONCE,
+        		GlobalConstants.SITEDS_PASSWORD,
+        		GlobalConstants.SITEDS_USER, 
+        		GlobalConstants.SITEDS_ID_REMITENTE, 
         		idReceptor, 
         		tiDoPaciente,
         		numeroDocPaciente, 
@@ -233,14 +374,14 @@ public class RsSiteds {
         		tiDoContratante, 
         		idReContratante, 
         		coReContratante,
-        		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
+        		GlobalConstants.SITEDS_NU_RUC_IPRESS
         	);
 			try {
 		        System.out.println("JSON ASEGURADO POR CODIGO: " + inputJson);
 				Map<String, String> headers = new HashMap<String, String>();
 		        headers.put("Content-Type", "application/json; charset=utf-8");
-		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
+		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+		        responseData = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE ASEGURADO POR CODIGO: " + response);
 				
@@ -271,28 +412,71 @@ public class RsSiteds {
             JsonObject cobertura = jsonObject.getJsonArray("detalleCobertura").getJsonObject(i);
             if (cobertura.getString("coberturaCodigo").equals("4100")) {
                 nuevoDetalleCoberturaArrayBuilder.add(cobertura);
+                
+                dtoSolAuto.setNuCobertura(cobertura.getString("nuCobertura"));
+                dtoSolAuto.setObsCobertura("");
+                dtoSolAuto.setMsgObs("");
+                dtoSolAuto.setMsgConEspeciales("");
+                dtoSolAuto.setNuCobPreExistencia("");
+                dtoSolAuto.setBeMaxInicial(cobertura.getString("beMaxInicial"));
+                dtoSolAuto.setCanServicio("1");
+                dtoSolAuto.setIdDeProducto(cobertura.getString("idProducto"));
+                dtoSolAuto.setCoTiCobertura(cobertura.getString("coTiCobertura"));
+                dtoSolAuto.setCoSubTiCobertura(cobertura.getString("coSubTiCobertura"));
+                dtoSolAuto.setMsgObsPre(cobertura.getString("msgConEspeciales"));
+                dtoSolAuto.setMsgConEspecialesPre(cobertura.getString("msgConEspeciales"));
+                dtoSolAuto.setCoTiMoneda(cobertura.getString("coTiMoneda"));
+                dtoSolAuto.setCoPagoFijo(cobertura.getString("coPagoFijo"));
+                dtoSolAuto.setCoCalServicio(cobertura.getString("coCalServicio"));
+                dtoSolAuto.setCanCalServicio(cobertura.getString("canCalServicio"));
+                dtoSolAuto.setCoPagoVariable(cobertura.getString("coPagoVariable"));
+                dtoSolAuto.setFlagCG(cobertura.getString("flagCaGarantia"));
+                dtoSolAuto.setDeflagCG(cobertura.getString("deflagCaGarantia"));
+                dtoSolAuto.setFeFinCarencia("");
+                if (cobertura.getString("feFinEspera") != null) {
+                    dtoSolAuto.setFeFinCarencia(cobertura.getString("feFinEspera"));
+                }
+                dtoSolAuto.setFeFinEspera(cobertura.getString("nuCobertura"));
+                
                 break;
             }
-        }
+        }*/
+        
+		String fechaSolo = feNacimiento.substring(0, 10);
+        LocalDate fechaNacimiento = LocalDate.parse(fechaSolo, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate fechaActual = LocalDate.now();
+        Period periodo = Period.between(fechaNacimiento, fechaActual);
+        Integer edad = periodo.getYears();
         
         JsonObjectBuilder nuevoJsonObjectBuilder = Json.createObjectBuilder(jsonObject);
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat formatHora = new SimpleDateFormat("HH:mm:ss");
         String horaTransaccion = formatHora.format(calendar.getTime());
-        nuevoJsonObjectBuilder.add("detalleCobertura", nuevoDetalleCoberturaArrayBuilder);
-        nuevoJsonObjectBuilder.add("idCorrelativo", jsonValue.NULL);
-        nuevoJsonObjectBuilder.add("noTransaccion", jsonValue.NULL);
-        nuevoJsonObjectBuilder.add("idReceptor", jsonValue.NULL);
-        nuevoJsonObjectBuilder.add("idRemitente", jsonValue.NULL);
-        nuevoJsonObjectBuilder.add("nuControl", jsonValue.NULL);
-        nuevoJsonObjectBuilder.add("nuControlIST", jsonValue.NULL);
-        nuevoJsonObjectBuilder.add("hoTransaccion", horaTransaccion);
-        nuevoJsonObjectBuilder.add("idTransaccion", "271");
-        JsonObject nuevoJsonObject = nuevoJsonObjectBuilder.build();   
-
         String fechaIniVigencia = this.timeConvertToIso(jsonObject.getString("feIniVigencia"));
         String fechaFinVigencia = this.timeConvertToIso(jsonObject.getString("feFinVigencia"));
         String fechaAfiliacion = this.timeConvertToIso(jsonObject.getString("feInsTitular"));
+        
+        nuevoJsonObjectBuilder.add("detalleCobertura", nuevoDetalleCoberturaArrayBuilder);
+        nuevoJsonObjectBuilder.add("idCorrelativo", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("noTransaccion", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("idReceptor", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("idRemitente", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("nuControl", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("nuControlIST", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("hoTransaccion", horaTransaccion);
+        nuevoJsonObjectBuilder.add("idTransaccion", "257");
+        nuevoJsonObjectBuilder.add("edadPaciente", edad);      
+        nuevoJsonObjectBuilder.add("descProducto", deProducto);
+        nuevoJsonObjectBuilder.add("feAfiliacion", fechaAfiliacion);
+        nuevoJsonObjectBuilder.add("feFinVigenciaForm", fechaFinVigencia);
+        nuevoJsonObjectBuilder.add("feIniVigenciaForm", fechaIniVigencia);
+        nuevoJsonObjectBuilder.add("tipoDeAtencion", Integer.valueOf(4));
+        nuevoJsonObjectBuilder.add("tipoPaciente", Integer.valueOf(2));
+        nuevoJsonObjectBuilder.add("coberturaDescripcion", String.valueOf("CONSULTA AMBULATORIA"));
+
+        JsonObject nuevoJsonObject = nuevoJsonObjectBuilder.build();   
+
+
         String nroDocTitular = jsonObject.getString("nuDoPaciente");
         String coMoneda = jsonObject.getString("coMoneda");
         
@@ -300,20 +484,748 @@ public class RsSiteds {
         JsonObject cobertura = detalleCoberturaArray.getJsonObject(0);
         
         String nuCobertura = cobertura.getString("nuCobertura");
-        String deCobertura = "CONSULTA AMBULATORIA";
+        
         String caServicio = "1";
         String coCalServicio = cobertura.getString("coCalServicio");
         String beMaxInicial = cobertura.getString("beMaxInicial");
         String coTiCobertura = cobertura.getString("coTiCobertura");
         String coSuTiCobertura = cobertura.getString("coSubTiCobertura");
-        String coEspecialidad = "";
+    
+        
+  	  Map<String, Object> mapResponse = new HashMap<String, Object>();
+
+  	  mapResponse.put("descripcion", "Se obtuvieron los resultados");
+  	  mapResponse.put("informacionObtenida", nuevoJsonObject);
+  	  //mapResponse.put("informacionFormateada", mapAsegurado);
+  	  
+  	  //mapResponse.put("informacionCondiciones", jsonArrayCondiciones);
+  	  return mapResponse;
+    }
+    
+    
+    @POST
+    @Path("obtenerDatosSitetsLuxor")
+    @Produces({"application/json"})
+    @Consumes({"application/json"})
+    public SitedsSolAutorizacionDto obtenerDatosSitetsLuxor(Map<String, Object> mapAseguradora){
+      String codIafa = Mapo.mstring(mapAseguradora, "iafaAseguradora");
+	  String apPaternoPaciente = "";
+	  String apMaternoPaciente = "";
+      if(GlobalConstants.CONFIG_GENERAL.getModule().equals("produccion")) {    	  
+    	  apPaternoPaciente = Mapo.mstring(mapAseguradora, "apPaterno");
+    	  apMaternoPaciente = Mapo.mstring(mapAseguradora, "apMaterno");
+      }
+      String nombrePaciente = Mapo.mstring(mapAseguradora, "nombreCompleto");
+      String tipoDocPaciente = Mapo.mstring(mapAseguradora, "tipoDocumento");
+      String numeroDocPaciente = Mapo.mstring(mapAseguradora, "nroDocumento");
+      String especialidad = Mapo.mstring(mapAseguradora, "especialidad").toUpperCase();
+      System.out.println("USUARIO: " + GlobalConstants.SITEDS_USER + ", END POINT: " +  GlobalConstants.SITEDS_BASE);
+      
+  	  String response = "";
+  	  String inputJson = "";
+  	  String idReceptor = codIafa;
+      String coAfPaciente = "";
+      String caPaciente = "";
+      String coEsPaciente = "";
+      String tiDoPaciente = "";
+      String nuDoPaciente = "";
+      String nuContratoPaciente = "";
+      String coProducto = "";
+      String coDescripcion = "";
+      String nuSCTR ="";
+      String coParentesco ="";
+      String nuPlan = "";
+      String feNacimiento ="";
+      String genero = "";
+      String esMarital = "";
+      String tiCaContratante = "";
+      String noPaContratante = "";
+      String noContratante = "";
+      String noMaContratante = "";
+      String tiDoContratante = "";
+      String idReContratante = "";
+      String coReContratante = "";   
+      String deProducto = ""; 
+      
+      SitedsSolAutorizacionDto dtoSolAuto = new SitedsSolAutorizacionDto();
+      dtoSolAuto.setNuAutorizacion("00012123");
+	  HttpResponse responseData = null;
+	  JsonReader jsonReader = null;
+	  JsonObject jsonObject = null;  	       
+	  JsonArray jsonArray = null;
+	  
+      inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"caIPRESS\":\"%s\",\"noIPRESS\":\"%s\",\"tiDoIPRESS\":\"%s\",\"nuRucIPRESS\":\"%s\",\"nuRucRemitente\":\"%s\"}", 			GlobalConstants.SITEDS_NONCE, 
+    		GlobalConstants.SITEDS_PASSWORD, 
+    		GlobalConstants.SITEDS_USER, 
+    		GlobalConstants.SITEDS_ID_REMITENTE, 
+    		idReceptor, 
+    		GlobalConstants.SITEDS_CA_IPRESS, 
+    		GlobalConstants.SITEDS_NO_IPRESS, 
+    		GlobalConstants.SITEDS_TI_DO_IPRESS, 
+    		GlobalConstants.SITEDS_NU_RUC_IPRESS,
+    		GlobalConstants.SITEDS_NU_RUC_IPRESS
+    		  );
+		try {
+	        System.out.println("JSON ENTIDAD VINCULADA: " + inputJson);
+			Map<String, String> headers = new HashMap<String, String>();
+	        headers.put("Content-Type", "application/json; charset=utf-8");
+	        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+	        responseData  = sendPostRequest(GlobalConstants.SITEDS_ENTIDAD_VINCULADA, inputJson, headers);
+	        response = responseData.getResponseBody();
+	        System.out.println("RESPONSE ENTIDAD VINCULADA: " + response);
+			
+		} catch (Exception e) {
+			throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar el servicio EntVin.");
+		}
+      
+		if(responseData.getStatusCode() == 500) {
+			throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio EntVin.");
+		}
+		
+		if(response == null || !response.contains("respuesta\":\"Y\"")) {
+			throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "El paciente no cuenta con afiliación al seguro.");
+		}
+      
+	  	  inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"apPaternoPaciente\":\"%s\",\"apMaternoPaciente\":\"%s\",\"noPaciente\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
+	  			GlobalConstants.SITEDS_NONCE,
+	  			GlobalConstants.SITEDS_PASSWORD,
+	  			GlobalConstants.SITEDS_USER,
+	  			GlobalConstants.SITEDS_ID_REMITENTE, 
+	  			idReceptor, 
+	  			apPaternoPaciente, 
+	  			apMaternoPaciente, 
+	  			nombrePaciente, 
+	  			tipoDocPaciente, 
+	  			numeroDocPaciente,
+	  			GlobalConstants.SITEDS_NU_RUC_IPRESS
+	  	);
+			try {
+		        System.out.println("JSON ASEGURADO POR NOMBRE: " + inputJson);
+				Map<String, String> headers = new HashMap<String, String>();
+		        headers.put("Content-Type", "application/json; charset=utf-8");
+		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+		        responseData  = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_NOMBRE, inputJson, headers);
+		        response = responseData.getResponseBody();
+		        System.out.println("RESPONSE ASEGURADO POR NOMBRE: " + response);
+				
+			} catch (Exception e) {
+				throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConNom.");
+			}
+	      
+			if(responseData.getStatusCode() == 500) {
+				throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConNom.");
+			}
+			
+        jsonReader = Json.createReader(new StringReader(response));
+        jsonArray = jsonReader.readArray();
+        jsonObject = null;
+        
+        String numCobertura = "";
+        if(especialidad.equals("PSICOLOGIA")) {
+        	numCobertura = "4502";
+        }else if(especialidad.equals("PSIQUIATRIA")) {
+        	numCobertura = "4501";
+        }else if(especialidad.equals("NUTRICION")) {
+        	numCobertura = "4021";
+        }else {
+        	numCobertura = "4100";
+        }
+        
+        boolean haySeguroSalud = false;
+        
+        boolean tieneCobertura = false;
+        JsonArrayBuilder nuevoDetalleCoberturaArrayBuilder = Json.createArrayBuilder();
+        for (int i = 0; i < jsonArray.size(); i++) {
+      	 jsonObject = jsonArray.getJsonObject(i);
+      	 coProducto = jsonObject.getString("coProducto");
+           coEsPaciente = jsonObject.getString("coEsPaciente");
+           nuDoPaciente = jsonObject.getString("nuDoPaciente");
+           coDescripcion = jsonObject.getString("coDescripcion");
+           String desc = coDescripcion.toUpperCase();
+           if(nuDoPaciente.equals(numeroDocPaciente)
+        	        && coEsPaciente.equals("1")
+        	        && !(desc.contains("SCTR")
+        	            || desc.contains("SEGURO COMPLEMENTARIO DE TRABAJO DE RIESGO")
+        	            || desc.contains("SEGURO COMPLEM. TRABAJO DE RIESGO"))) {
+                coAfPaciente = jsonObject.getString("coAfPaciente");
+                caPaciente = jsonObject.getString("caPaciente");
+                tiDoPaciente = jsonObject.getString("tiDoPaciente");
+                nuContratoPaciente = jsonObject.getString("nuContratoPaciente");
+                coDescripcion = jsonObject.getString("coDescripcion");
+                //coDescripcion = "EPS";
+                nuSCTR = jsonObject.getString("nuSCTR");
+                coParentesco = jsonObject.getString("coParentesco");
+                nuPlan = jsonObject.getString("nuPlan");
+                feNacimiento = jsonObject.getString("feNacimiento");
+                genero = jsonObject.getString("genero");
+                esMarital = jsonObject.getString("esMarital");
+                tiCaContratante = jsonObject.getString("tiCaContratante");
+                noPaContratante = jsonObject.getString("noPaContratante");
+                noContratante = jsonObject.getString("noContratante");
+                noMaContratante = jsonObject.getString("noMaContratante");
+                tiDoContratante = jsonObject.getString("tiDoContratante");
+                idReContratante = jsonObject.getString("idReContratante");
+                coReContratante = jsonObject.getString("coReContratante");
+                
+                //haySeguroSalud = true;
+          	 //break;
+                inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
+                		GlobalConstants.SITEDS_NONCE,
+                		GlobalConstants.SITEDS_PASSWORD,
+                		GlobalConstants.SITEDS_USER, 
+                		GlobalConstants.SITEDS_ID_REMITENTE, 
+                		idReceptor, 
+                		tiDoPaciente,
+                		numeroDocPaciente, 
+                		coAfPaciente, 
+                		coProducto, 
+                		coDescripcion, 
+                		coEsPaciente, 
+                		coParentesco, 
+                		nuPlan, 
+                		tiCaContratante, 
+                		noPaContratante,
+                		noContratante, 
+                		noMaContratante, 
+                		tiDoContratante, 
+                		idReContratante, 
+                		coReContratante,
+                		GlobalConstants.SITEDS_NU_RUC_IPRESS
+                	);
+        			try {
+        		        System.out.println("JSON ASEGURADO POR CODIGO: " + inputJson);
+        				Map<String, String> headers = new HashMap<String, String>();
+        		        headers.put("Content-Type", "application/json; charset=utf-8");
+        		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+        		        responseData = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
+        		        response = responseData.getResponseBody();
+        		        System.out.println("RESPONSE ASEGURADO POR CODIGO: " + response);
+        				
+        			} catch (Exception e) {
+        	            //throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConCod.");
+        				continue;
+        			}
+          	  
+        			if(responseData.getStatusCode() == 500) {
+        				//throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConCod.");
+        				continue;
+        			}
+        			
+        	        jsonReader = Json.createReader(new StringReader(response));
+        	        JsonObject jsonResponse = jsonReader.readObject();
+        	        dtoSolAuto.setFeAfiliacion(jsonResponse.getString("feInsTitular"));
+        	        JsonArray detalleCobertura = jsonResponse.getJsonArray("detalleCobertura");
+        	        jsonObject = jsonResponse;
+        	        if (detalleCobertura != null && !detalleCobertura.isEmpty()) {
+        	            for (JsonValue coberturaValue : detalleCobertura) {
+        	                JsonObject cobertura = coberturaValue.asJsonObject();
+        	                if (cobertura.getString("coberturaCodigo").equals(numCobertura)) {
+        	                	nuevoDetalleCoberturaArrayBuilder.add(cobertura);
+        	                    dtoSolAuto.setNuCobertura(cobertura.getString("nuCobertura"));
+        	                    dtoSolAuto.setObsCobertura("");
+        	                    dtoSolAuto.setMsgObs("");
+        	                    dtoSolAuto.setMsgConEspeciales("");
+        	                    dtoSolAuto.setNuCobPreExistencia("");
+        	                    dtoSolAuto.setBeMaxInicial(cobertura.getString("beMaxInicial"));
+        	                    dtoSolAuto.setCanServicio("1");
+        	                    dtoSolAuto.setIdDeProducto(cobertura.getString("idProducto"));
+        	                    dtoSolAuto.setCoTiCobertura(cobertura.getString("coTiCobertura"));
+        	                    dtoSolAuto.setCoSubTiCobertura(cobertura.getString("coSubTiCobertura"));
+        	                    dtoSolAuto.setMsgObsPre(cobertura.getString("msgConEspeciales"));
+        	                    dtoSolAuto.setMsgConEspecialesPre(cobertura.getString("msgConEspeciales"));
+        	                    dtoSolAuto.setCoTiMoneda(cobertura.getString("coTiMoneda"));
+        	                    dtoSolAuto.setCoPagoFijo(cobertura.getString("coPagoFijo"));
+        	                    dtoSolAuto.setCoCalServicio(cobertura.getString("coCalServicio"));
+        	                    dtoSolAuto.setCanCalServicio(cobertura.getString("canCalServicio"));
+        	                    dtoSolAuto.setCoPagoVariable(cobertura.getString("coPagoVariable"));
+        	                    dtoSolAuto.setFlagCG(cobertura.getString("flagCaGarantia"));
+        	                    dtoSolAuto.setDeflagCG(cobertura.getString("deflagCaGarantia"));
+        	                    dtoSolAuto.setFeFinCarencia("");
+        	                    dtoSolAuto.setCoInRestriccion(cobertura.getString("coInRestriccion"));
+        	                    if (cobertura.containsKey("feFinCarencia") && 
+        	                    	    !cobertura.isNull("feFinCarencia")) {
+
+        	                    	    dtoSolAuto.setFeFinCarencia(cobertura.getString("feFinCarencia"));
+        	                    	}
+        	                    dtoSolAuto.setFeFinEspera(cobertura.getString("feFinEspera"));
+        	                    tieneCobertura = true;
+        	                    break;
+        	                }      	                
+        	            }
+        	            if (!tieneCobertura && "40004".equals(codIafa) && "4100".equals(numCobertura)) {
+        	                String numCoberturaFallback = "4150";
+        	                for (JsonValue coberturaValue : detalleCobertura) {
+        	                    JsonObject cobertura = coberturaValue.asJsonObject();
+        	                    if (cobertura.getString("coberturaCodigo").equals(numCoberturaFallback)) {
+        	                        nuevoDetalleCoberturaArrayBuilder.add(cobertura);
+        	                        dtoSolAuto.setNuCobertura(cobertura.getString("nuCobertura"));
+        	                        dtoSolAuto.setObsCobertura("");
+        	                        dtoSolAuto.setMsgObs("");
+        	                        dtoSolAuto.setMsgConEspeciales("");
+        	                        dtoSolAuto.setNuCobPreExistencia("");
+        	                        dtoSolAuto.setBeMaxInicial(cobertura.getString("beMaxInicial"));
+        	                        dtoSolAuto.setCanServicio("1");
+        	                        dtoSolAuto.setIdDeProducto(cobertura.getString("idProducto"));
+        	                        dtoSolAuto.setCoTiCobertura(cobertura.getString("coTiCobertura"));
+        	                        dtoSolAuto.setCoSubTiCobertura(cobertura.getString("coSubTiCobertura"));
+        	                        dtoSolAuto.setMsgObsPre(cobertura.getString("msgConEspeciales"));
+        	                        dtoSolAuto.setMsgConEspecialesPre(cobertura.getString("msgConEspeciales"));
+        	                        dtoSolAuto.setCoTiMoneda(cobertura.getString("coTiMoneda"));
+        	                        dtoSolAuto.setCoPagoFijo(cobertura.getString("coPagoFijo"));
+        	                        dtoSolAuto.setCoCalServicio(cobertura.getString("coCalServicio"));
+        	                        dtoSolAuto.setCanCalServicio(cobertura.getString("canCalServicio"));
+        	                        dtoSolAuto.setCoPagoVariable(cobertura.getString("coPagoVariable"));
+        	                        dtoSolAuto.setFlagCG(cobertura.getString("flagCaGarantia"));
+        	                        dtoSolAuto.setDeflagCG(cobertura.getString("deflagCaGarantia"));
+        	                        dtoSolAuto.setFeFinCarencia("");
+        	                        dtoSolAuto.setCoInRestriccion(cobertura.getString("coInRestriccion"));
+        	                        if (cobertura.containsKey("feFinCarencia") && 
+        	                        	    !cobertura.isNull("feFinCarencia")) {
+
+        	                        	    dtoSolAuto.setFeFinCarencia(cobertura.getString("feFinCarencia"));
+        	                        	}
+        	                        dtoSolAuto.setFeFinEspera(cobertura.getString("feFinEspera"));
+        	                        tieneCobertura = true;
+        	                        break;
+        	                    }
+        	                }
+        	            }
+        	        }
+
+        	        if (tieneCobertura) {
+        	            break;
+        	        }
+           }
+           
+        }
+        
+        if (!tieneCobertura) {
+            throw UtilResponse.rsException(Response.Status.NOT_FOUND, "No hay coberturas disponibles para el seguro elegido.");
+        }
+        
+        /*for (int i = 0; i < jsonArray.size(); i++) {
+      	 jsonObject = jsonArray.getJsonObject(i);
+      	 coProducto = jsonObject.getString("coProducto");
+           coEsPaciente = jsonObject.getString("coEsPaciente");
+           nuDoPaciente = jsonObject.getString("nuDoPaciente");
+           
+           if(nuDoPaciente.equals(numeroDocPaciente) && coEsPaciente.equals("1") && !coProducto.equals("R")) {
+                coAfPaciente = jsonObject.getString("coAfPaciente");
+                caPaciente = jsonObject.getString("caPaciente");
+                tiDoPaciente = jsonObject.getString("tiDoPaciente");
+                nuContratoPaciente = jsonObject.getString("nuContratoPaciente");
+                coDescripcion = jsonObject.getString("coDescripcion");
+                nuSCTR = jsonObject.getString("nuSCTR");
+                coParentesco = jsonObject.getString("coParentesco");
+                nuPlan = jsonObject.getString("nuPlan");
+                feNacimiento = jsonObject.getString("feNacimiento");
+                genero = jsonObject.getString("genero");
+                esMarital = jsonObject.getString("esMarital");
+                tiCaContratante = jsonObject.getString("tiCaContratante");
+                noPaContratante = jsonObject.getString("noPaContratante");
+                noContratante = jsonObject.getString("noContratante");
+                noMaContratante = jsonObject.getString("noMaContratante");
+                tiDoContratante = jsonObject.getString("tiDoContratante");
+                idReContratante = jsonObject.getString("idReContratante");
+                coReContratante = jsonObject.getString("coReContratante");
+                haySeguroSalud = true;
+          	 break;
+           }
+           
+        }
+        
+        if(!haySeguroSalud) {
+      	  throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "No hay seguros activos para el paciente.");
+        }
+      
+        
+        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
+        		GlobalConstants.SITEDS_NONCE,
+        		GlobalConstants.SITEDS_PASSWORD,
+        		GlobalConstants.SITEDS_USER, 
+        		GlobalConstants.SITEDS_ID_REMITENTE, 
+        		idReceptor, 
+        		tiDoPaciente,
+        		numeroDocPaciente, 
+        		coAfPaciente, 
+        		coProducto, 
+        		coDescripcion, 
+        		coEsPaciente, 
+        		coParentesco, 
+        		nuPlan, 
+        		tiCaContratante, 
+        		noPaContratante,
+        		noContratante, 
+        		noMaContratante, 
+        		tiDoContratante, 
+        		idReContratante, 
+        		coReContratante,
+        		GlobalConstants.SITEDS_NU_RUC_IPRESS
+        	);
+			try {
+		        System.out.println("JSON ASEGURADO POR CODIGO: " + inputJson);
+				Map<String, String> headers = new HashMap<String, String>();
+		        headers.put("Content-Type", "application/json; charset=utf-8");
+		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+		        responseData = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
+		        response = responseData.getResponseBody();
+		        System.out.println("RESPONSE ASEGURADO POR CODIGO: " + response);
+				
+			} catch (Exception e) {
+	            throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConCod.");
+			}
+  	  
+			if(responseData.getStatusCode() == 500) {
+				throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio ConCod.");
+			}
+			
+		String fechaSolo = feNacimiento.substring(0, 10);
+        LocalDate fechaNacimiento = LocalDate.parse(fechaSolo, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate fechaActual = LocalDate.now();
+        Period periodo = Period.between(fechaNacimiento, fechaActual);
+        Integer edad = periodo.getYears();
+        
+        jsonReader = Json.createReader(new StringReader(response));
+        JsonValue jsonValue = jsonReader.readValue();
+        jsonObject = jsonValue.asJsonObject();
+        String coberturaFull = response;
+        JsonArrayBuilder nuevoDetalleCoberturaArrayBuilder = Json.createArrayBuilder();
+        if(jsonObject.getJsonArray("detalleCobertura").size() < 0) {
+        	throw UtilResponse.rsException(Response.Status.NOT_FOUND, "No hay coberturas disponibles para el seguro elegido.");
+        }
+              
+        for (int i = 0; i < jsonObject.getJsonArray("detalleCobertura").size(); i++) {
+            JsonObject cobertura = jsonObject.getJsonArray("detalleCobertura").getJsonObject(i);
+            if (cobertura.getString("coberturaCodigo").equals("4100")) {
+                nuevoDetalleCoberturaArrayBuilder.add(cobertura);
+                
+                dtoSolAuto.setNuCobertura(cobertura.getString("nuCobertura"));
+                dtoSolAuto.setObsCobertura("");
+                dtoSolAuto.setMsgObs("");
+                dtoSolAuto.setMsgConEspeciales("");
+                dtoSolAuto.setNuCobPreExistencia("");
+                dtoSolAuto.setBeMaxInicial(cobertura.getString("beMaxInicial"));
+                dtoSolAuto.setCanServicio("1");
+                dtoSolAuto.setIdDeProducto(cobertura.getString("idProducto"));
+                dtoSolAuto.setCoTiCobertura(cobertura.getString("coTiCobertura"));
+                dtoSolAuto.setCoSubTiCobertura(cobertura.getString("coSubTiCobertura"));
+                dtoSolAuto.setMsgObsPre(cobertura.getString("msgConEspeciales"));
+                dtoSolAuto.setMsgConEspecialesPre(cobertura.getString("msgConEspeciales"));
+                dtoSolAuto.setCoTiMoneda(cobertura.getString("coTiMoneda"));
+                dtoSolAuto.setCoPagoFijo(cobertura.getString("coPagoFijo"));
+                dtoSolAuto.setCoCalServicio(cobertura.getString("coCalServicio"));
+                dtoSolAuto.setCanCalServicio(cobertura.getString("canCalServicio"));
+                dtoSolAuto.setCoPagoVariable(cobertura.getString("coPagoVariable"));
+                dtoSolAuto.setFlagCG(cobertura.getString("flagCaGarantia"));
+                dtoSolAuto.setDeflagCG(cobertura.getString("deflagCaGarantia"));
+                dtoSolAuto.setFeFinCarencia("");
+                if (cobertura.getString("feFinEspera") != null) {
+                    dtoSolAuto.setFeFinCarencia(cobertura.getString("feFinEspera"));
+                }
+                dtoSolAuto.setFeFinEspera(cobertura.getString("nuCobertura"));
+                
+                break;
+            }
+        }*/
+        
+		String fechaSolo = feNacimiento.substring(0, 10);
+        LocalDate fechaNacimiento = LocalDate.parse(fechaSolo, DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate fechaActual = LocalDate.now();
+        Period periodo = Period.between(fechaNacimiento, fechaActual);
+        Integer edad = periodo.getYears();
+        
+        JsonObjectBuilder nuevoJsonObjectBuilder = Json.createObjectBuilder(jsonObject);
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat formatHora = new SimpleDateFormat("HH:mm:ss");
+        String horaTransaccion = formatHora.format(calendar.getTime());
+        String fechaIniVigencia = this.timeConvertToIso(jsonObject.getString("feIniVigencia"));
+        String fechaFinVigencia = this.timeConvertToIso(jsonObject.getString("feFinVigencia"));
+        String fechaAfiliacion = this.timeConvertToIso(jsonObject.getString("feInsTitular"));
+        String nuCertificado = jsonObject.getString("nuCertificado");
+        String coTiPoliza = jsonObject.getString("coTiPoliza");
+        coProducto = jsonObject.getString("coProducto");
+        deProducto = jsonObject.getString("deProducto");
+        nuPlan = jsonObject.getString("nuPlan");
+        String tiPlanSalud = jsonObject.getString("tiPlanSalud");
+        String coMoneda = jsonObject.getString("coMoneda");
+        coParentesco = jsonObject.getString("coParentesco");
+        String soBeneficio = jsonObject.getString("soBeneficio");
+        String nuSoBeneficio = jsonObject.getString("nuSoBeneficio");
+        feNacimiento = jsonObject.getString("feNacimiento");
+        genero = jsonObject.getString("genero");
+        esMarital = jsonObject.getString("esMarital");
+        String feIniVigencia = jsonObject.getString("feIniVigencia");
+        String feFinVigencia = jsonObject.getString("feFinVigencia");
+        noPaContratante = jsonObject.getString("noPaContratante");
+        noMaContratante = jsonObject.getString("noMaContratante");
+        noContratante = jsonObject.getString("noContratante");
+        tiDoContratante = jsonObject.getString("tiDoContratante");
+        idReContratante = jsonObject.getString("idReContratante");
+        coReContratante = jsonObject.getString("coReContratante");
+        String caTitular = jsonObject.getString("caTitular");
+        String noPaTitular = jsonObject.getString("noPaTitular");
+        String noTitular = jsonObject.getString("noTitular");
+        String coAfTitular = jsonObject.getString("coAfTitular");
+        String noMaTitular = jsonObject.getString("noMaTitular");
+        String tiDoTitular = jsonObject.getString("tiDoTitular");
+        String nuDoTitular = jsonObject.getString("nuDoTitular");
+        String feInsTitular = jsonObject.getString("feInsTitular");
+        
+        nuevoJsonObjectBuilder.add("detalleCobertura", nuevoDetalleCoberturaArrayBuilder);
+        nuevoJsonObjectBuilder.add("idCorrelativo", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("noTransaccion", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("idReceptor", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("idRemitente", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("nuControl", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("nuControlIST", JsonValue.NULL);
+        nuevoJsonObjectBuilder.add("hoTransaccion", horaTransaccion);
+        nuevoJsonObjectBuilder.add("idTransaccion", "257");
+        nuevoJsonObjectBuilder.add("edadPaciente", edad);      
+        nuevoJsonObjectBuilder.add("descProducto", deProducto);
+        nuevoJsonObjectBuilder.add("feAfiliacion", fechaAfiliacion);
+        nuevoJsonObjectBuilder.add("feFinVigenciaForm", fechaFinVigencia);
+        nuevoJsonObjectBuilder.add("feIniVigenciaForm", fechaIniVigencia);
+        nuevoJsonObjectBuilder.add("tipoDeAtencion", Integer.valueOf(4));
+        nuevoJsonObjectBuilder.add("tipoPaciente", Integer.valueOf(2));
+        nuevoJsonObjectBuilder.add("coberturaDescripcion", String.valueOf("CONSULTA AMBULATORIA"));
+
+        JsonObject nuevoJsonObject = nuevoJsonObjectBuilder.build();   
+
+
+        String nroDocTitular = jsonObject.getString("nuDoPaciente");
+        //String coMoneda = jsonObject.getString("coMoneda");
+        
+        JsonArray detalleCoberturaArray = nuevoJsonObject.getJsonArray("detalleCobertura");
+        JsonObject cobertura = detalleCoberturaArray.getJsonObject(0);
+        
+        String nuCobertura = cobertura.getString("nuCobertura");
+        
+        String caServicio = "1";
+        String coCalServicio = cobertura.getString("coCalServicio");
+        String beMaxInicial = cobertura.getString("beMaxInicial");
+        String coTiCobertura = cobertura.getString("coTiCobertura");
+        String coSuTiCobertura = cobertura.getString("coSubTiCobertura");
+    
+        String usrSiteds = GlobalConstants.SITEDS_USER;
+        dtoSolAuto.setSitedsNonce(GlobalConstants.SITEDS_NONCE);
+        dtoSolAuto.setSitedsUser(GlobalConstants.SITEDS_USER);
+        dtoSolAuto.setSitedsPassword(GlobalConstants.SITEDS_PASSWORD);
+        dtoSolAuto.setIdRemitente(GlobalConstants.SITEDS_ID_REMITENTE);
+        dtoSolAuto.setNuRucRemitente(GlobalConstants.SITEDS_NU_RUC_IPRESS);
+        dtoSolAuto.setIdReceptor(codIafa);
+        dtoSolAuto.setTiCaContratante(tiCaContratante);
+        dtoSolAuto.setCaPaciente("1");
+        dtoSolAuto.setTiDoPaciente(tipoDocPaciente);
+        dtoSolAuto.setNuDoPaciente(numeroDocPaciente);
+        dtoSolAuto.setApPaternoPaciente(apPaternoPaciente);
+        dtoSolAuto.setApMaternoPaciente(apMaternoPaciente);
+        dtoSolAuto.setNoPaciente(nombrePaciente);
+
+        dtoSolAuto.setCoAdmisionista(GlobalConstants.SITEDS_ADMISION);
+
+        dtoSolAuto.setCoAfPaciente(coAfPaciente);
+        dtoSolAuto.setCoEsPaciente(coEsPaciente);
+
+        dtoSolAuto.setNuIdenEmpleador("00001");
+        
+        dtoSolAuto.setNuContratoPaciente(nuContratoPaciente);
+        dtoSolAuto.setNuPoliza(nuContratoPaciente);
+        
+        dtoSolAuto.setNuCertificado(nuCertificado);
+        dtoSolAuto.setCoTiPolizaAfiliacion(coTiPoliza);
+        dtoSolAuto.setCoProducto(coProducto);
+
+        dtoSolAuto.setDeProducto(coDescripcion);
+        dtoSolAuto.setNuPlan(nuPlan);
+        dtoSolAuto.setTiPlanSalud(tiPlanSalud);
+        dtoSolAuto.setCoMoneda(coMoneda);
+        dtoSolAuto.setCoParentesco(coParentesco);
+        dtoSolAuto.setSoBeneficio(soBeneficio);
+        dtoSolAuto.setNuSoBeneficio(nuSoBeneficio);
+        dtoSolAuto.setCoEspecialidad("");
+        dtoSolAuto.setCoEspecialidad("DSC");
+        dtoSolAuto.setFeNacimiento(feNacimiento);
+        dtoSolAuto.setGenero(genero);
+        dtoSolAuto.setEsMarital(esMarital);
+        dtoSolAuto.setFeIniVigencia(feIniVigencia);
+        dtoSolAuto.setFeFinVigencia(feFinVigencia);
+        dtoSolAuto.setEsCobertura("");
+        dtoSolAuto.setNuDecAccidente("");
+        dtoSolAuto.setIdInfAccidente("");
+        dtoSolAuto.setDeTiAccidente("");
+        dtoSolAuto.setFeOcuAccidente("");
+        dtoSolAuto.setNuAtencion("");
+        dtoSolAuto.setIdDerFarmacia("");
+        dtoSolAuto.setTiProducto("");
+        dtoSolAuto.setDeProductoDeFarmacia("");
+        dtoSolAuto.setFeAtencion("");
+        int nroDoc = (coReContratante != null ? coReContratante.trim().length() : 0);
+        dtoSolAuto.setCaContratante((nroDoc == 8) ? "1" : "2");//Tipo  Calificador  ( 1 Persona ,2 Non-Person  )
+        dtoSolAuto.setNoPaContratante(noPaContratante);
+        dtoSolAuto.setNoContratante(noContratante);
+        dtoSolAuto.setNoMaContratante(noMaContratante);
+        dtoSolAuto.setTiDoContratante(tiDoContratante);
+        dtoSolAuto.setIdReContratante(idReContratante);
+        dtoSolAuto.setCoReContratante(coReContratante);
+        dtoSolAuto.setCaTitular(caTitular);
+        dtoSolAuto.setNoPaTitular(noPaTitular);
+        dtoSolAuto.setNoTitular(noTitular);
+        dtoSolAuto.setCoAfTitular(coAfTitular);
+        dtoSolAuto.setNoMaTitular(noMaTitular);
+        dtoSolAuto.setTiDoTitular(tiDoTitular);
+        dtoSolAuto.setIdReTitular("");//Identificador  Calificador  de Referencia  (XX5   Código  para una Organización  o PIN:  4A)
+        dtoSolAuto.setNuDoTitular(nuDoTitular);
+        dtoSolAuto.setFeIncTitular(feInsTitular);
+        /*for (RegistroAdmSitedsCobeBean det : tRegistro.getDetalleCobertura()) {
+            if (det.getCodCobertura().equals(tRegistro.getCodCobSel())) {
+                dtoSolAuto.setNuCobertura(det.getData().getNuCobertura());
+                dtoSolAuto.setObsCobertura("");
+                dtoSolAuto.setMsgObs("");
+                dtoSolAuto.setMsgConEspeciales("");
+                dtoSolAuto.setNuCobPreExistencia("");
+                dtoSolAuto.setBeMaxInicial(det.getData().getBeMaxInicial());
+                dtoSolAuto.setCanServicio("1");
+                dtoSolAuto.setIdDeProducto(det.getData().getIdProducto());
+                dtoSolAuto.setCoTiCobertura(det.getData().getCoTiCobertura());
+                dtoSolAuto.setCoSubTiCobertura(det.getData().getCoSubTiCobertura());
+                dtoSolAuto.setMsgObsPre(det.getData().getMsgObs());
+                dtoSolAuto.setMsgConEspecialesPre(det.getData().getMsgConEspeciales());
+                dtoSolAuto.setCoTiMoneda(det.getData().getCoTiMoneda());
+                dtoSolAuto.setCoPagoFijo(det.getData().getCoPagoFijo());
+                dtoSolAuto.setCoCalServicio(det.getData().getCoCalServicio());
+                dtoSolAuto.setCanCalServicio(det.getData().getCanCalServicio());
+                dtoSolAuto.setCoPagoVariable(det.getData().getCoPagoVariable());
+                dtoSolAuto.setFlagCG(det.getData().getFlagCaGarantia());
+                dtoSolAuto.setDeflagCG(det.getData().getDeflagCaGarantia());
+                dtoSolAuto.setFeFinCarencia("");
+                if (det.getData().getCarenciaFechaFin() != null) {
+                    dtoSolAuto.setFeFinCarencia(det.getData().getCarenciaFechaFin());
+                }
+                dtoSolAuto.setFeFinEspera(det.getData().getFeFinEspera());
+                System.out.println("COBERTURA :::::: " + det.getData().toString());
+                break;
+            }
+        }*/
+        List<SitedsSolAutorizacionProEspDto> detProEsp = new LinkedList<SitedsSolAutorizacionProEspDto>();
+        List<SitedsSolAutorizacionExeCarDto> detExeCar = new LinkedList<SitedsSolAutorizacionExeCarDto>();
+        List<SitedsSolAutorizacionTieEspDto> detTieEsp = new LinkedList<SitedsSolAutorizacionTieEspDto>();
+        List<SitedsSolAutorizacionRestricDto> detRestric = new LinkedList<SitedsSolAutorizacionRestricDto>();
+        List<SitedsSolAutorizacionDetalleRes> detDetalleRes = new LinkedList<SitedsSolAutorizacionDetalleRes>();
+        SitedsSolAutorizacionProEspDto proEsp = null;
+        SitedsSolAutorizacionExeCarDto exeCar = null;
+        SitedsSolAutorizacionTieEspDto tieEsp = null;
+        SitedsSolAutorizacionRestricDto restric = null;
+        SitedsSolAutorizacionDetalleRes detalleRes = null;
+        proEsp = new SitedsSolAutorizacionProEspDto();
+        proEsp.setCoInProcedimiento("1");
+        detProEsp.add(0, proEsp);
+        exeCar = new SitedsSolAutorizacionExeCarDto();
+        exeCar.setCoExCarencia("1");
+        detExeCar.add(0, exeCar);
+        tieEsp = new SitedsSolAutorizacionTieEspDto();
+        tieEsp.setCoTiEspera("1");
+        detTieEsp.add(0, tieEsp);
+        for (int i = 0; i < 5; i++) {
+            restric = new SitedsSolAutorizacionRestricDto();
+            detRestric.add(0, restric);
+        }
+       
+        
+        for (int i = 0; i < 5; i++) {
+        	detalleRes = new SitedsSolAutorizacionDetalleRes();
+        	detDetalleRes.add(0, detalleRes);
+        }
         
         
-        inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
-        		GlobalSitedsConstants.SITEDS_NONCE,
-        		GlobalSitedsConstants.SITEDS_PASSWORD,
-        		GlobalSitedsConstants.SITEDS_USER, 
-        		GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
+        /*if (registro.getProcEsp() != null && registro.getProcEsp().getDetalleCopagoDife() != null && !registro.getProcEsp().getDetalleCopagoDife().isEmpty()
+            && (codIafa.equals("20002") || codIafa.equals("40004"))) {//20002: PACIFICO EPS, 40004: PACIFICO VIDA
+            detProEsp = new LinkedList<SitedsSolAutorizacionProEspDto>();
+            detExeCar = new LinkedList<SitedsSolAutorizacionExeCarDto>();
+            detTieEsp = new LinkedList<SitedsSolAutorizacionTieEspDto>();
+            //PR:preexistencia, EX:exclusiones, CA:carencias, CM:observaciones, EN:enfermedad
+            for (RegistroAdmSitedsCdifBean det : registro.getProcEsp().getDetalleCopagoDife()) {
+                proEsp = new SitedsSolAutorizacionProEspDto();
+                proEsp.setCaConAmbulatoria(det.getRegistro().getTiNuDias());
+                proEsp.setCoInProcedimiento(det.getRegistro().getCoInProcedimiento());
+                proEsp.setCoTiProConAmbulatoria(det.getRegistro().getCoProcedimiento());
+                proEsp.setFrConAmbulatoria(det.getRegistro().getNuFrecuencia());
+                proEsp.setGeConAmbulatoria(det.getRegistro().getCoSexo());
+                proEsp.setImDeducible(det.getRegistro().getImDeducible());
+                proEsp.setMsgConAmbulatoria(det.getRegistro().getTeMsgObservacion());
+                proEsp.setNuPlanConAmbulatoria(registro.getNuPlan());
+                proEsp.setPoConAmbulatoria(det.getRegistro().getPoCuExDecimal());
+                detProEsp.add(proEsp);
+            }
+        }*/
+        
+        dtoSolAuto.setDetalleProEsp(detProEsp);
+        dtoSolAuto.setDetalleTieEsp(detTieEsp);
+        dtoSolAuto.setDetalleExeCar(detExeCar);
+        dtoSolAuto.setDetalleRestric(detRestric);
+        dtoSolAuto.setDetalleRes(detDetalleRes);
+        dtoSolAuto.setCaRegafi("");
+        dtoSolAuto.setNoPaRegafi("");
+        dtoSolAuto.setNoRegafi("");
+        dtoSolAuto.setCoAfRegafi("");
+        dtoSolAuto.setNoMaRegafi("");
+        dtoSolAuto.setTiDoRegafi("");
+        dtoSolAuto.setNuDoRegafi("");
+        dtoSolAuto.setFeNaRegafi("");
+        dtoSolAuto.setGeRegafi("");
+        dtoSolAuto.setCoPaisRegafi("");
+        dtoSolAuto.setIdReRegafi("");
+        
+  	  Map<String, Object> mapResponse = new HashMap<String, Object>();
+
+  	  mapResponse.put("descripcion", "Se obtuvieron los resultados");
+  	  mapResponse.put("informacionObtenida", nuevoJsonObject);
+  	  //mapResponse.put("informacionFormateada", mapAsegurado);
+  	  
+  	  //mapResponse.put("informacionCondiciones", jsonArrayCondiciones);
+  	  return dtoSolAuto;
+    }
+    
+    
+    
+    @POST
+    @Path("obtenerProcesos")
+    @Produces({"application/json"})
+    @Consumes({"application/json"})
+    public Map<String, Object> obtenerAutorizacion(Map<String, Object> mapAseguradora){
+  	  HttpResponse responseData = null;
+  	  JsonReader jsonReader = null;
+  	  JsonObject jsonObject = null;  	       
+  	  JsonArray jsonArray = null;
+  	  String inputJson = "";
+  	  String response = "";
+  	  String tiDoPaciente = Mapo.mstring(mapAseguradora, "tiDoPaciente");
+  	  String nuDoPaciente = Mapo.mstring(mapAseguradora, "nuDoPaciente");
+  	  String coAfPaciente = Mapo.mstring(mapAseguradora, "coAfPaciente");
+  	  String coProducto = Mapo.mstring(mapAseguradora, "coProducto");
+  	  String deProducto = Mapo.mstring(mapAseguradora, "deProducto");
+  	  String nuPlan = Mapo.mstring(mapAseguradora, "nuPlan");
+  	  String tiCaContratante = Mapo.mstring(mapAseguradora, "tiCaContratante");
+  	  String noPaContratante = Mapo.mstring(mapAseguradora, "noPaContratante");
+  	  String noContratante = Mapo.mstring(mapAseguradora, "noContratante");
+  	  String noMaContratante = Mapo.mstring(mapAseguradora, "noMaContratante");
+  	  String tiDoContratante = Mapo.mstring(mapAseguradora, "tiDoContratante");
+  	  String idReContratante = Mapo.mstring(mapAseguradora, "idReContratante");
+  	  String coReContratante = Mapo.mstring(mapAseguradora, "coReContratante");
+  	  String coParentesco = Mapo.mstring(mapAseguradora, "coParentesco");
+  	  String codIafa = Mapo.mstring(mapAseguradora, "codIafa");
+  	String idReceptor = codIafa;
+  	String nuCobertura = Mapo.mstring(mapAseguradora, "nuCobertura");
+  	String caServicio = Mapo.mstring(mapAseguradora, "caServicio");
+  	String coCalServicio = Mapo.mstring(mapAseguradora, "coCalServicio");
+  	String beMaxInicial = Mapo.mstring(mapAseguradora, "beMaxInicial");
+  	String coTiCobertura = Mapo.mstring(mapAseguradora, "coTiCobertura");
+  	String coSuTiCobertura = Mapo.mstring(mapAseguradora, "coSuTiCobertura");
+  	  
+  	  inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
+        		GlobalConstants.SITEDS_NONCE,
+        		GlobalConstants.SITEDS_PASSWORD,
+        		GlobalConstants.SITEDS_USER, 
+        		GlobalConstants.SITEDS_ID_REMITENTE, 
  				 idReceptor, 
  				 tiDoPaciente, 
  				 nuDoPaciente, 
@@ -328,16 +1240,16 @@ public class RsSiteds {
  				 tiDoContratante, 
  				 idReContratante, 
  				 coReContratante,
- 				 GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
+ 				 GlobalConstants.SITEDS_NU_RUC_IPRESS
  			);
 			try {
 		        System.out.println("JSON CONDICIONES MEDICAS: " + inputJson);
 				Map<String, String> headers = new HashMap<String, String>();
 		        headers.put("Content-Type", "application/json; charset=utf-8");
-		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, headers);
+		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.SITEDS_OBSERVACIONES, inputJson, headers);
 		        
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CONDICIONES_MEDICAS, inputJson, headers);
+		        responseData = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_CONDICIONES_MEDICAS, inputJson, headers);
 		        
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE CONDICIONES MEDICAS: " + response);
@@ -358,10 +1270,10 @@ public class RsSiteds {
 		  	  
         
         inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"coParentesco\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuRucRemitente\":\"%s\"}", 
-        		GlobalSitedsConstants.SITEDS_NONCE,
-        		GlobalSitedsConstants.SITEDS_PASSWORD,
-        		GlobalSitedsConstants.SITEDS_USER, 
-        		GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
+        		GlobalConstants.SITEDS_NONCE,
+        		GlobalConstants.SITEDS_PASSWORD,
+        		GlobalConstants.SITEDS_USER, 
+        		GlobalConstants.SITEDS_ID_REMITENTE, 
  				 idReceptor, 
  				 tiDoPaciente, 
  				 nuDoPaciente, 
@@ -377,16 +1289,16 @@ public class RsSiteds {
  				 tiDoContratante, 
  				 idReContratante, 
  				 coReContratante,
- 				GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
+ 				GlobalConstants.SITEDS_NU_RUC_IPRESS
  			);
 			try {
 		        System.out.println("JSON OBSERVACIONES: " + inputJson);
 				Map<String, String> headers = new HashMap<String, String>();
 		        headers.put("Content-Type", "application/json; charset=utf-8");
-		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, headers);
+		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.SITEDS_OBSERVACIONES, inputJson, headers);
 		        
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_OBSERVACIONES, inputJson, headers);
+		        responseData = sendPostRequest(GlobalConstants.SITEDS_OBSERVACIONES, inputJson, headers);
 		        
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE OBSERVACIONES: " + response);
@@ -403,151 +1315,162 @@ public class RsSiteds {
   	  jsonReader = Json.createReader(new StringReader(response));
   	  jsonObject = jsonReader.readObject();
   	  
-  	  String obsAsegurado = jsonObject.isNull("teMsgLibre1") ? null : jsonObject.getString("teMsgLibre1").trim().isEmpty() ? jsonObject.getString("teMsgLibre1").trim() + " " + jsonObject.getString("rptObs").trim() : 							!jsonObject.isNull("rptObs") ? jsonObject.getString("rptObs").trim() : "";
-  	  String obsAdicional = jsonObject.isNull("teMsgLibre2") ? null : jsonObject.getString("teMsgLibre2").trim().isEmpty() ? "" : jsonObject.getString("teMsgLibre2") ;	  
+  	  //String obsAsegurado = jsonObject.isNull("teMsgLibre1") ? null : jsonObject.getString("teMsgLibre1").trim().isEmpty() ? jsonObject.getString("teMsgLibre1").trim() + " " + jsonObject.getString("rptObs").trim() : 							!jsonObject.isNull("rptObs") ? jsonObject.getString("rptObs").trim() : "";
+  	  //String obsAdicional = jsonObject.isNull("teMsgLibre2") ? null : jsonObject.getString("teMsgLibre2").trim().isEmpty() ? "" : jsonObject.getString("teMsgLibre2") ;	  
+	  	String teMsgLibre1 = jsonObject.isNull("teMsgLibre1") ? "" : jsonObject.getString("teMsgLibre1").trim();
+	  	String rptObs = jsonObject.isNull("rptObs") ? "" : jsonObject.getString("rptObs").trim();
+	  	String obsAsegurado = teMsgLibre1.isEmpty() ? rptObs : teMsgLibre1 + " " + rptObs;
+	  	String obsAdicional = jsonObject.isNull("teMsgLibre2") ? "" : jsonObject.getString("teMsgLibre2").trim();
+	  	obsAsegurado = limpiarTexto(obsAsegurado);
+	  	obsAdicional = limpiarTexto(obsAdicional);
+  	  response = "";
+  	  if(codIafa.equals("40004") || codIafa.equals("20002")) { 		  
+  		  inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuCobertura\":\"%s\",\"deCobertura\":\"%s\",\"caServicio\":\"%s\",\"coCalservicio\":\"%s\",\"beMaxInicial\":\"%s\",\"coTiCobertura\":\"%s\",\"coSuTiCobertura\":\"%s\",\"coAplicativoTx\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuRucRemitente\":\"%s\"}",
+  				  GlobalConstants.SITEDS_NONCE,
+  				  GlobalConstants.SITEDS_PASSWORD,
+  				  GlobalConstants.SITEDS_USER, 
+  				  GlobalConstants.SITEDS_ID_REMITENTE, 
+  				  idReceptor, 
+  				  tiDoPaciente, 
+  				  nuDoPaciente, 
+  				  coAfPaciente, 
+  				  coProducto, 
+  				  deProducto, 
+  				  nuPlan, 
+  				  tiCaContratante, 
+  				  noPaContratante, 
+  				  noContratante, 
+  				  noMaContratante, 
+  				  tiDoContratante, 
+  				  idReContratante, 
+  				  coReContratante, 
+  				  nuCobertura, 
+  				  deCobertura, 
+  				  caServicio, 
+  				  coCalServicio, 
+  				  beMaxInicial, 
+  				  coTiCobertura, 
+  				  coSuTiCobertura, 
+  				  coAplicativoTx, 
+  				  coEspecialidad, 
+  				  coParentesco,
+  				  GlobalConstants.SITEDS_NU_RUC_IPRESS 				  
+  				  );
+  		  try {
+  			  System.out.println("JSON PROCEDIMIENTOS: " + inputJson);
+  			  Map<String, String> headers = new HashMap<String, String>();
+  			  headers.put("Content-Type", "application/json; charset=utf-8");
+  			  headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+  			  //responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.SITEDS_PROCEDIMIENTOS, inputJson, headers);
+  			  
+  			  responseData = sendPostRequest(GlobalConstants.SITEDS_PROCEDIMIENTOS, inputJson, headers);
+  			  
+  			  response = responseData.getResponseBody();
+  			  System.out.println("RESPONSE PROCEDIMIENTOS: " + response);
+  			  
+  		  } catch (Exception e) {
+  			  response = null;
+  			  //throw UtilResponse.rsException(Response.Status.BAD_REQUEST, "Error al consultar servicio qlProc.");
+  		  }  	
+  		  
+  		  if(responseData.getStatusCode() == 500) {
+  			  response = null;
+  			  //throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio qlProc.");
+  		  }
+  	  }
   	  
-  	inputJson = String.format("{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"tiDocumento\":\"%s\",\"nuDocumento\":\"%s\",\"coAfPaciente\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiCaContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noContratante\":\"%s\",\"noMaContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"nuCobertura\":\"%s\",\"deCobertura\":\"%s\",\"caServicio\":\"%s\",\"coCalservicio\":\"%s\",\"beMaxInicial\":\"%s\",\"coTiCobertura\":\"%s\",\"coSuTiCobertura\":\"%s\",\"coAplicativoTx\":\"%s\",\"coEspecialidad\":\"%s\",\"coParentesco\":\"%s\",\"nuRucRemitente\":\"%s\"}",
-  				GlobalSitedsConstants.SITEDS_NONCE,
-    			GlobalSitedsConstants.SITEDS_PASSWORD,
-    			GlobalSitedsConstants.SITEDS_USER, 
-    			GlobalSitedsConstants.SITEDS_ID_REMITENTE, 
-				 idReceptor, 
-				 tiDoPaciente, 
-				 nuDoPaciente, 
-				 coAfPaciente, 
-				 coProducto, 
-				 deProducto, 
-				 nuPlan, 
-				 tiCaContratante, 
-				 noPaContratante, 
-				 noContratante, 
-				 noMaContratante, 
-				 tiDoContratante, 
-				 idReContratante, 
-				 coReContratante, 
-				 nuCobertura, 
-				 deCobertura, 
-				 caServicio, 
-				 coCalServicio, 
-				 beMaxInicial, 
-				 coTiCobertura, 
-				 coSuTiCobertura, 
-				 coAplicativoTx, 
-				 coEspecialidad, 
-				 coParentesco,
-				 GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS
-				 
-			);
-			try {
-		        System.out.println("JSON PROCEDIMIENTOS: " + inputJson);
-				Map<String, String> headers = new HashMap<String, String>();
-		        headers.put("Content-Type", "application/json; charset=utf-8");
-		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_PROCEDIMIENTOS, inputJson, headers);
-		        
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_PROCEDIMIENTOS, inputJson, headers);
-		        
-		        response = responseData.getResponseBody();
-		        System.out.println("RESPONSE PROCEDIMIENTOS: " + response);
-				
-			} catch (Exception e) {
-				throw UtilResponse.rsException(Response.Status.BAD_REQUEST, "Error al consultar servicio qlProc.");
-			}  	
-			
-			if(responseData.getStatusCode() == 500) {
-				throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio qlProc.");
-			}
   	  
-  	  Map<String, Object> mapDatosProcedimientos = new HashMap<String, Object>();
-  	  List<Map<String, Object>> lstCpDiferen = new LinkedList<Map<String,Object>>();
-  	  List<Map<String, Object>> lstExCarencia = new LinkedList<Map<String,Object>>();
-  	  List<Map<String, Object>> lstTiEspera = new LinkedList<Map<String,Object>>();
-        String fechaVigFin = "";
-        jsonReader = Json.createReader(new StringReader(response));
-        JsonArray aseguradoProcedimientos = jsonReader.readArray();
-        
-        for (int i = 0; i < aseguradoProcedimientos.size(); i++) {
-      	  JsonObject procesos = aseguradoProcedimientos.getJsonObject(i);
-      	  if(!procesos.getString("coProcedimiento").trim().isEmpty()) {
-    			Map<String, Object> regCpDif = new HashMap<String, Object>();
-    			regCpDif.put("identificador", procesos.getString("coProcedimiento"));
-    			regCpDif.put("procedimiento", "");
-    			regCpDif.put("genero", procesos.getString("coSexo").trim().isEmpty() ? "F/M" : procesos.getString("coSexo"));
-    			regCpDif.put("cpFijo", procesos.getString("imDeducible") + " " + ("") + " POR ATENCIÓN");
-    			regCpDif.put("deducible", procesos.getString("imDeducible"));
-    			regCpDif.put("cpVariable", procesos.getString("poCuExDecimal") + " %");
-    			regCpDif.put("coAseguro", procesos.getString("poCuExDecimal"));
-    			regCpDif.put("frecuencia", procesos.getString("nuFrecuencia").trim().isEmpty() ? "0" : procesos.getString("nuFrecuencia"));
-    			regCpDif.put("tiempo", procesos.getString("tiNuDias").trim().isEmpty() ? "0" : procesos.getString("tiNuDias"));
-    			regCpDif.put("observacion", procesos.getString("teMsgObservacion"));
-    			lstCpDiferen.add(regCpDif);
-    			
-    		}
-    		fechaVigFin = procesos.getString("feFinVigencia");
-    		
-    		if(!procesos.getString("coExCarencia").trim().isEmpty()) {
-    			Map<String, Object> regExCar = new HashMap<String, Object>();
-    			regExCar.put("tipo", "CA");
-    			regExCar.put("identificador", procesos.getString("coExCarencia"));
-    			regExCar.put("descripcion", procesos.getString("deExCarencia"));
-    			regExCar.put("observacion", procesos.getString("teMsgExCarencia"));
-    			if(fechaVigFin != null && fechaVigFin.trim().length() == 8) {
-    				regExCar.put("fechaVigFin", UtilAppDate.convertStringToDate(fechaVigFin, "yyyyMMdd"));
-    			}
-    			lstExCarencia.add(regExCar);
-    		}
-    		if(!procesos.getString("coTiEspera").trim().isEmpty()) {
-    			Map<String, Object> regTiEsp = new HashMap<String, Object>();
-    			regTiEsp.put("tipo", "TE");
-    			regTiEsp.put("identificador", procesos.getString("coTiEspera"));
-    			regTiEsp.put("descripcion", procesos.getString("deTiEspera"));
-    			regTiEsp.put("observacion", procesos.getString("teMsgTiEspera"));
-    			if(fechaVigFin != null && fechaVigFin.trim().length() == 8) {
-    				regTiEsp.put("fechaVigFin", UtilAppDate.convertStringToDate(fechaVigFin, "yyyyMMdd"));
-    			}
-    			lstTiEspera.add(regTiEsp);
-    		}
-  	}
-        
-  	  mapDatosProcedimientos.put("detalleCoPagoDife", lstCpDiferen);
-        if (lstExCarencia != null && !lstExCarencia.isEmpty()) {
-            Map<String, Object> procCond = new HashMap<String, Object>();
-            procCond.put("tipo","CA");
-            procCond.put("descripcion","EXCEPCIÓN A LA CARENCIA");
-            procCond.put("detalleCondicion", lstExCarencia);
-            mapDatosProcedimientos.put("detalleProcEspRes", procCond);
-        }
-        if (lstTiEspera != null && !lstTiEspera.isEmpty()) {
-      	  Map<String, Object> procCond = new HashMap<String, Object>();
-            procCond.put("tipo","TE");
-            procCond.put("descripcion","TIEMPO DE ESPERA");
-            procCond.put("detalleCondicion",lstTiEspera);
-            mapDatosProcedimientos.put("detalleProcEspRes", procCond);
-        }
+	  	Map<String, Object> mapDatosProcedimientos = new HashMap<>();
+	  	List<Map<String, Object>> lstCpDiferen = new LinkedList<>();
+	  	List<Map<String, Object>> lstExCarencia = new LinkedList<>();
+	  	List<Map<String, Object>> lstTiEspera = new LinkedList<>();
+	  	String fechaVigFin = "";
+	
+	  	// Validar si response no es vacío ni nulo
+	  	if (response != null && !response.trim().isEmpty()) {
+	  	    try (JsonReader jsonReader1 = Json.createReader(new StringReader(response))) {
+	  	        JsonArray aseguradoProcedimientos = jsonReader1.readArray();
+	
+	  	        for (int i = 0; i < aseguradoProcedimientos.size(); i++) {
+	  	            JsonObject procesos = aseguradoProcedimientos.getJsonObject(i);
+	
+	  	            if (!procesos.getString("coProcedimiento").trim().isEmpty()) {
+	  	                Map<String, Object> regCpDif = new HashMap<>();
+	  	                regCpDif.put("identificador", procesos.getString("coProcedimiento"));
+	  	                regCpDif.put("procedimiento", "");
+	  	                regCpDif.put("genero", procesos.getString("coSexo").trim().isEmpty() ? "F/M" : procesos.getString("coSexo"));
+	  	                regCpDif.put("cpFijo", procesos.getString("imDeducible") + " POR ATENCIÓN");
+	  	                regCpDif.put("deducible", procesos.getString("imDeducible"));
+	  	                regCpDif.put("cpVariable", procesos.getString("poCuExDecimal") + " %");
+	  	                regCpDif.put("coAseguro", procesos.getString("poCuExDecimal"));
+	  	                regCpDif.put("frecuencia", procesos.getString("nuFrecuencia").trim().isEmpty() ? "0" : procesos.getString("nuFrecuencia"));
+	  	                regCpDif.put("tiempo", procesos.getString("tiNuDias").trim().isEmpty() ? "0" : procesos.getString("tiNuDias"));
+	  	                regCpDif.put("observacion", procesos.getString("teMsgObservacion"));
+	  	                lstCpDiferen.add(regCpDif);
+	  	            }
+	
+	  	            fechaVigFin = procesos.getString("feFinVigencia");
+	
+	  	            if (!procesos.getString("coExCarencia").trim().isEmpty()) {
+	  	                Map<String, Object> regExCar = new HashMap<>();
+	  	                regExCar.put("tipo", "CA");
+	  	                regExCar.put("identificador", procesos.getString("coExCarencia"));
+	  	                regExCar.put("descripcion", procesos.getString("deExCarencia"));
+	  	                regExCar.put("observacion", procesos.getString("teMsgExCarencia"));
+	  	                if (fechaVigFin != null && fechaVigFin.trim().length() == 8) {
+	  	                    regExCar.put("fechaVigFin", UtilAppDate.convertStringToDate(fechaVigFin, "yyyyMMdd"));
+	  	                }
+	  	                lstExCarencia.add(regExCar);
+	  	            }
+	
+	  	            if (!procesos.getString("coTiEspera").trim().isEmpty()) {
+	  	                Map<String, Object> regTiEsp = new HashMap<>();
+	  	                regTiEsp.put("tipo", "TE");
+	  	                regTiEsp.put("identificador", procesos.getString("coTiEspera"));
+	  	                regTiEsp.put("descripcion", procesos.getString("deTiEspera"));
+	  	                regTiEsp.put("observacion", procesos.getString("teMsgTiEspera"));
+	  	                if (fechaVigFin != null && fechaVigFin.trim().length() == 8) {
+	  	                    regTiEsp.put("fechaVigFin", UtilAppDate.convertStringToDate(fechaVigFin, "yyyyMMdd"));
+	  	                }
+	  	                lstTiEspera.add(regTiEsp);
+	  	            }
+	  	        }
+	  	    } catch (Exception e) {
+	  	        System.err.println("Error al parsear JSON de procedimientos: " + e.getMessage());
+	  	        // También puedes lanzar una excepción personalizada si lo deseas
+	  	    }
+	  	} else {
+	  	    System.out.println("No se recibió respuesta de procedimientos.");
+	  	}
+	
+	  	// Agregar datos a map
+	  	mapDatosProcedimientos.put("detalleCoPagoDife", lstCpDiferen);
+	
+	  	if (!lstExCarencia.isEmpty()) {
+	  	    Map<String, Object> procCond = new HashMap<>();
+	  	    procCond.put("tipo", "CA");
+	  	    procCond.put("descripcion", "EXCEPCIÓN A LA CARENCIA");
+	  	    procCond.put("detalleCondicion", lstExCarencia);
+	  	    mapDatosProcedimientos.put("detalleProcEspRes", procCond);
+	  	}
+	
+	  	if (!lstTiEspera.isEmpty()) {
+	  	    Map<String, Object> procCond = new HashMap<>();
+	  	    procCond.put("tipo", "TE");
+	  	    procCond.put("descripcion", "TIEMPO DE ESPERA");
+	  	    procCond.put("detalleCondicion", lstTiEspera);
+	  	    mapDatosProcedimientos.put("detalleProcEspRes", procCond);
+	  	}
   	  
+      
         
         Map<String, Object> mapAsegurado = new HashMap<String, Object>();
-        mapAsegurado.put("tipoDeAtencion", Integer.valueOf(4));
-        mapAsegurado.put("tipoPaciente", Integer.valueOf(2));
-        mapAsegurado.put("coberturaDescripcion", String.valueOf("CONSULTA AMBULATORIA"));
-        mapAsegurado.put("edadPaciente", edad);      
-        mapAsegurado.put("descProducto", deProducto);
-        mapAsegurado.put("feFinVigencia", fechaFinVigencia);
-        mapAsegurado.put("feIniVigencia", fechaIniVigencia);
         mapAsegurado.put("obsAsegurado",obsAsegurado);
         mapAsegurado.put("obsAseguradoAdicional",obsAdicional);
-        mapAsegurado.put("feAfiliacion", fechaAfiliacion);
         mapAsegurado.put("procedimientosCobertura", mapDatosProcedimientos);
-        //mapAsegurado.put("fullCoberturaPaciente", coberturaFull);
-        
-  	  Map<String, Object> mapResponse = new HashMap<String, Object>();
-
-  	  mapResponse.put("descripcion", "Se obtuvieron los resultados");
-  	  mapResponse.put("informacionObtenida", nuevoJsonObject);
-  	  mapResponse.put("informacionFormateada", mapAsegurado);
-  	  mapResponse.put("informacionCondiciones", jsonArrayCondiciones);
-  	  return mapResponse;
+  	  return mapAsegurado;
     }
+    
     
     @POST
     @Path("autorizacionSiteds")
@@ -555,10 +1478,9 @@ public class RsSiteds {
     @Consumes({"application/json"})
     public Map<String, Object> autorizacionSiteds(Map<String, Object> mapIn){
       Map<String, Object> mapResponse = new HashMap<String, Object>();
-      Map<String, Object> mapInfoSeguroPersona = new HashMap<String, Object>();
+      //Map<String, Object> mapInfoSeguroPersona = new HashMap<String, Object>();
       List<Map<String, Object>> detalleCobertura = new ArrayList<Map<String,Object>>();
       Map<String, Object> mapInfo = new HashMap<String, Object>();
-      mapInfoSeguroPersona = (Map<String, Object>) mapIn.get("informacionPersonaSeguro");
       mapInfo = (Map<String, Object>) mapIn.get("informacionSeguro");
       detalleCobertura = (List<Map<String, Object>>) mapInfo.get("detalleCobertura");
       Map<String, Object> mapCobertura = detalleCobertura.get(0);
@@ -571,7 +1493,7 @@ public class RsSiteds {
       Double deducible = null;
       Double coaSeguro = 0.0;
       String nroAsegurado = null;
-      String edadPaciente = null;
+      //String edadPaciente = null;
       String fechaIniVigencia = null;
       String fechaFinVigencia = null;
       String nroSOrigen = null;
@@ -588,7 +1510,7 @@ public class RsSiteds {
       String nomTitular = null;
       String nomEntidad = null;
       String direcMedico = null;
-      String jsonAsegurado = null;
+      //String jsonAsegurado = null;
       String fechaAfiliacion = null;
       Double cConsulta = null;
       String tipoAutorizacion = null;
@@ -610,18 +1532,18 @@ public class RsSiteds {
       
 	  	nroSOrigen = "";
 	  	nroAccidente = "";
-	  	jsonAsegurado = (String) mapInfoSeguroPersona.get("fullCoberturaPaciente");
+	  	//jsonAsegurado = (String) mapInfoSeguroPersona.get("fullCoberturaPaciente");
 	  	cConsulta = 100.00;
-	  	dscCobertura = (String) mapInfoSeguroPersona.get("coberturaDescripcion").toString();
-	  	edadPaciente = mapInfoSeguroPersona.get("edadPaciente").toString();
-	  	fechaIniVigencia = (String) mapInfoSeguroPersona.get("feIniVigencia").toString();
-	  	fechaFinVigencia = (String) mapInfoSeguroPersona.get("feFinVigencia").toString();
-	  	dscProducto = (String) mapInfoSeguroPersona.get("descProducto").toString();
-	  	fechaAfiliacion = (String) mapInfoSeguroPersona.get("feAfiliacion").toString();
+	  	dscCobertura = (String) mapInfo.get("coberturaDescripcion").toString();
+	  	//edadPaciente = mapInfoSeguroPersona.get("edadPaciente").toString();
+	  	fechaIniVigencia = (String) mapInfo.get("feIniVigencia").toString();
+	  	fechaFinVigencia = (String) mapInfo.get("feFinVigencia").toString();
+	  	dscProducto = (String) mapInfo.get("descProducto").toString();
+	  	fechaAfiliacion = (String) mapInfo.get("feAfiliacion").toString();
 	  	observacion = "";
-	  	observacionAsegurado = mapInfoSeguroPersona.get("obsAsegurado").toString().trim().isEmpty() ? "0" : mapInfoSeguroPersona.get("obsAsegurado").toString() ;
-	  	observacionAsegAdicional = (String) mapInfoSeguroPersona.get("obsAseguradoAdicional").toString();
-	  	direcMedico = "Dpto:              Provincia:             Distrito:                 Direccion:";
+	  	observacionAsegurado = mapInfo.get("obsAsegurado").toString().trim().isEmpty() ? "0" : mapInfo.get("obsAsegurado").toString() ;
+	  	observacionAsegAdicional = (String) mapInfo.get("obsAseguradoAdicional").toString();
+	  	//direcMedico = "Dpto:              Provincia:             Distrito:                 Direccion:";
 	  	
 	  	
 	  	nomTitular = mapInfo.get("noPaTitular").toString() + " " +  mapInfo.get("noMaTitular").toString() + " " + mapInfo.get("noTitular").toString();
@@ -649,7 +1571,7 @@ public class RsSiteds {
 	  	String apPaternoPaciente = mapInfo.get("apPaternoPaciente").toString();
 	  	String apMaternoPaciente = mapInfo.get("apMaternoPaciente").toString();
 	  	String noPaciente = mapInfo.get("noPaciente").toString();
-	  	String coAdmisionista = GlobalSitedsConstants.SITEDS_ADMISION;
+	  	String coAdmisionista = GlobalConstants.SITEDS_ADMISION;
 	  	String coAfPaciente = mapInfo.get("coAfPaciente").toString();
 	  	String coEsPaciente = mapInfo.get("coEsPaciente").toString();
 	  	String nuIdEmpleador = "00001";
@@ -739,15 +1661,113 @@ public class RsSiteds {
 	  	String idReRegafi = "";
 	  	String response = "";
 	  	String jsonTemplate = "{\"sitedsNonce\":\"%s\",\"sitedsPassword\":\"%s\",\"sitedsUser\":\"%s\",\"idRemitente\":\"%s\",\"idReceptor\":\"%s\",\"apPaternoPaciente\":\"%s\",\"apMaternoPaciente\":\"%s\",\"noPaciente\":\"%s\",\"tiDoPaciente\":\"%s\",\"nuDoPaciente\":\"%s\",\"caPaciente\":\"%s\",\"coAfPaciente\":\"%s\",\"coEsPaciente\":\"%s\",\"coAdmisionista\":\"%s\",\"nuIdenEmpleador\":\"%s\",\"nuContratoPaciente\":\"%s\",\"nuPoliza\":\"%s\",\"nuCertificado\":\"%s\",\"coTiPolizaAfiliacion\":\"%s\",\"coProducto\":\"%s\",\"deProducto\":\"%s\",\"nuPlan\":\"%s\",\"tiPlanSalud\":\"%s\",\"coMoneda\":\"%s\",\"coParentesco\":\"%s\",\"soBeneficio\":\"%s\",\"nuSoBeneficio\":\"%s\",\"coEspecialidad\":\"%s\",\"feNacimiento\":\"%s\",\"genero\":\"%s\",\"esMarital\":\"%s\",\"feIniVigencia\":\"%s\",\"feFinVigencia\":\"%s\",\"esCobertura\":\"%s\",\"nuDecAccidente\":\"%s\",\"idInfAccidente\":\"%s\",\"deTiAccidente\":\"%s\",\"feAfiliacion\":\"%s\",\"feOcuAccidente\":\"%s\",\"nuAtencion\":\"%s\",\"idDerFarmacia\":\"%s\",\"tiProducto\":\"%s\",\"deProductoDeFarmacia\":\"%s\",\"feAtencion\":\"%s\",\"caContratante\":\"%s\",\"noPaContratante\":\"%s\",\"noMaContratante\":\"%s\",\"noContratante\":\"%s\",\"tiDoContratante\":\"%s\",\"idReContratante\":\"%s\",\"coReContratante\":\"%s\",\"caTitular\":\"%s\",\"noPaTitular\":\"%s\",\"noTitular\":\"%s\",\"coAfTitular\":\"%s\",\"noMaTitular\":\"%s\",\"tiDoTitular\":\"%s\",\"idReTitular\":\"%s\",\"nuDoTitular\":\"%s\",\"feIncTitular\":\"%s\",\"nuCobertura\":\"%s\",\"obsCobertura\":\"%s\",\"msgObs\":\"%s\",\"msgConEspeciales\":\"%s\",\"nuCobPreExistencia\":\"%s\",\"beMaxInicial\":\"%s\",\"canServicio\":\"%s\",\"idDeProducto\":\"%s\",\"coTiCobertura\":\"%s\",\"coSubTiCobertura\":\"%s\",\"msgObsPre\":\"%s\",\"msgConEspecialesPre\":\"%s\",\"coTiMoneda\":\"%s\",\"coPagoFijo\":\"%s\",\"coCalServicio\":\"%s\",\"canCalServicio\":\"%s\",\"coPagoVariable\":\"%s\",\"flagCG\":\"%s\",\"deflagCG\":\"%s\",\"feFinCarencia\":\"%s\",\"feFinEspera\":\"%s\",\"caRegafi\":\"%s\",\"noPaRegafi\":\"%s\",\"noRegafi\":\"%s\",\"coAfRegafi\":\"%s\",\"noMaRegafi\":\"%s\",\"tiDoRegafi\":\"%s\",\"nuDoRegafi\":\"%s\",\"feNaRegafi\":\"%s\",\"geRegafi\":\"%s\",\"coPaisRegafi\":\"%s\",\"idReRegafi\":\"%s\",\"detalleProEsp\":%s,\"detalleTieEsp\":%s,\"detalleExeCar\":%s,\"detalleRes\":%s,\"nuRucRemitente\":\"%s\"}";
-	    String inputJson = String.format(jsonTemplate, GlobalSitedsConstants.SITEDS_NONCE, GlobalSitedsConstants.SITEDS_PASSWORD, GlobalSitedsConstants.SITEDS_USER, GlobalSitedsConstants.SITEDS_ID_REMITENTE, idReceptor, apPaternoPaciente, apMaternoPaciente, noPaciente, tiDoPaciente, nuDoPaciente, caPaciente, coAfPaciente, coEsPaciente, coAdmisionista, nuIdEmpleador, nuContratoPaciente, nuPoliza, nuCertificado, coTiPoliza, coProducto, deProducto, nuPlan, tiPlanSalud, coMoneda, coParentesco, soBeneficio, nuSoBeneficio, coEspecialidad, feNacimiento, genero, esMarital, feIniVigencia, feFinVigencia,esCobertura, nuDecAccidente, idInfAccidente, deTiAccidente, feAfiliacion, feOcuAccidente, nuAtencion, idDerFarmacia, tiProducto, deProductoDeFarmacia, feAtencion, caContrantante, noPaContratante, noMaContratante, noContratante, tiDoContratante, idReContratante, coReContratante, caTitular, noPaTitular, noTitular, coAfTitular, noMaTitular, tiDoTitular, idReTitular, nuDoTitular, feInsTitular, nuCobertura, obsCobertura, msgObs, msgConEspeciales, nuCobPreExistencia, beMaxInicial, canServicio, idProducto, coTiCobertura, coSubTiCobertura, msgObsPre, msgConEspecialesPre, coTiMoneda, coPagoFijo, coCalServicio, canCalServicio, coPagoVariable, flagCG, detFlagCG, feFinCarencia, feFinEspera, caRegafi, noPaRegafi, noRegafi, coAfRegafi, noMaRegafi, tiDoRegafi, nuDoRegafi, feNaRegafi, geRegafi, coPaisRegafi, idReRegafi, detalleProEsp, detalleTieEsp, detalleExeCar, detalleRestric, GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS);
+	    String inputJson = String.format(jsonTemplate, 
+	    		GlobalConstants.SITEDS_NONCE, 
+	    		GlobalConstants.SITEDS_PASSWORD, 
+	    		GlobalConstants.SITEDS_USER, 
+	    		GlobalConstants.SITEDS_ID_REMITENTE, 
+	    		idReceptor, 
+	    		apPaternoPaciente, 
+	    		apMaternoPaciente, 
+	    		noPaciente, 
+	    		tiDoPaciente, 
+	    		nuDoPaciente, 
+	    		caPaciente, 
+	    		coAfPaciente, 
+	    		coEsPaciente, 
+	    		coAdmisionista, 
+	    		nuIdEmpleador, 
+	    		nuContratoPaciente, 
+	    		nuPoliza, 
+	    		nuCertificado, 
+	    		coTiPoliza, 
+	    		coProducto, 
+	    		deProducto, 
+	    		nuPlan, 
+	    		tiPlanSalud, 
+	    		coMoneda, 
+	    		coParentesco, 
+	    		soBeneficio, 
+	    		nuSoBeneficio, 
+	    		coEspecialidad, 
+	    		feNacimiento, 
+	    		genero, 
+	    		esMarital, 
+	    		feIniVigencia, 
+	    		feFinVigencia,
+	    		esCobertura, 
+	    		nuDecAccidente, 
+	    		idInfAccidente, 
+	    		deTiAccidente, 
+	    		feAfiliacion, 
+	    		feOcuAccidente, 
+	    		nuAtencion, 
+	    		idDerFarmacia, 
+	    		tiProducto, 
+	    		deProductoDeFarmacia, 
+	    		feAtencion, 
+	    		caContrantante, 
+	    		noPaContratante, 
+	    		noMaContratante, 
+	    		noContratante, 
+	    		tiDoContratante, 
+	    		idReContratante, 
+	    		coReContratante, 
+	    		caTitular, 
+	    		noPaTitular, 
+	    		noTitular, 
+	    		coAfTitular, 
+	    		noMaTitular, 
+	    		tiDoTitular, 
+	    		idReTitular, 
+	    		nuDoTitular, 
+	    		feInsTitular, 
+	    		nuCobertura, 
+	    		obsCobertura, 
+	    		msgObs, 
+	    		msgConEspeciales, 
+	    		nuCobPreExistencia, 
+	    		beMaxInicial, 
+	    		canServicio, 
+	    		idProducto, 
+	    		coTiCobertura, 
+	    		coSubTiCobertura, 
+	    		msgObsPre, 
+	    		msgConEspecialesPre, 
+	    		coTiMoneda, 
+	    		coPagoFijo, 
+	    		coCalServicio, 
+	    		canCalServicio, 
+	    		coPagoVariable, 
+	    		flagCG, 
+	    		detFlagCG, 
+	    		feFinCarencia, 
+	    		feFinEspera, 
+	    		caRegafi, 
+	    		noPaRegafi, 
+	    		noRegafi, 
+	    		coAfRegafi, 
+	    		noMaRegafi, 
+	    		tiDoRegafi, 
+	    		nuDoRegafi, 
+	    		feNaRegafi, 
+	    		geRegafi, 
+	    		coPaisRegafi, 
+	    		idReRegafi, 
+	    		detalleProEsp, 
+	    		detalleTieEsp, 
+	    		detalleExeCar, 
+	    		detalleRestric, 
+	    		GlobalConstants.SITEDS_NU_RUC_IPRESS
+	    		);
 	      
 	  		try {
 	  	        System.out.println("JSON AUTORIZACION: " + inputJson);
 	  			Map<String, String> headers = new HashMap<String, String>();
 	  	        headers.put("Content-Type", "application/json; charset=utf-8");
-	  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
-	  	      responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
+	  	        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.SITEDS_AUTORIZACION, inputJson, headers);
+	  	      responseData = sendPostRequest(GlobalConstants.SITEDS_AUTORIZACION, inputJson, headers);
 	  	        response = responseData.getResponseBody();
 	  	        System.out.println("RESPONSE AUTORIZACION: " + response);
 	  			
@@ -770,19 +1790,21 @@ public class RsSiteds {
         DateTimeFormatter formatoSalida = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 	  	String noTransaccion = null;
 	  	String feTransaccion = fechaHoraActual.format(formatoSalida);
-	  	String nuRucRemitente = null;
+	  	String nuRucRemitente = GlobalConstants.SITEDS_NU_RUC_IPRESS;
 	  	String caReceptor = null;
 	  	String deCobertura = "CONSULTA AMBULATORIA";
-	  	String caResponsableAut = null;
-	  	String noPaResponsableAut=null;
-	  	String noResponsableAut=null;
-	  	String noMaResponsableAut=null;
-	  	String tiDoResponsableAut=null;
-	  	String nuDoResponsableAut=null;
+	  	String caResponsableAut = "2";
+	  	String noPaResponsableAut= GlobalConstants.SITEDS_USER;
+	  	String noResponsableAut= GlobalConstants.SITEDS_USER;
+	  	String noMaResponsableAut= GlobalConstants.SITEDS_USER;
+	  	String tiDoResponsableAut= "1";
+	  	String nuDoResponsableAut= GlobalConstants.SITEDS_USER;
 	  	String nuControl = "";
 	  	String nuControlST = "";
-	  	formatoSalida = DateTimeFormatter.ofPattern("dd/MM/yyyy hh:mm:ss");
+	  	nuContratoPaciente = nuContratoPaciente.trim().isEmpty() ? nuPoliza : nuContratoPaciente ;
+	  	formatoSalida = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 	  	String feHoTransaccion = fechaHoraActual.format(formatoSalida);
+	  	String hoTransaccion = fechaHoraActual.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 	    inputJson = String.format("{\"sitedsNonce\":\"%s\","
 	    		+ "\"sitedsPassword\":\"%s\","
 	    		+ "\"sitedsUser\":\"%s\","
@@ -827,11 +1849,16 @@ public class RsSiteds {
 	    		+ "\"deFlagCartaGarantia\":\"%s\","
 	    		+ "\"nuControl\":\"%s\","
 	    		+ "\"nuRucRemitente\":\"%s\","
-	    		+ "\"nuControlST\":\"%s\"}",
-	    		GlobalSitedsConstants.SITEDS_NONCE,
-	    		GlobalSitedsConstants.SITEDS_PASSWORD, 
-	    		GlobalSitedsConstants.SITEDS_USER, 
-	    		GlobalSitedsConstants.SITEDS_ID_REMITENTE,
+	    		+ "\"nuControlST\":\"%s\","
+	    		+ "\"hoTransaccion\":\"%s\","
+	    		+ "\"apPaternoPaciente\":\"%s\","
+	    		+ "\"apMaternoPaciente\":\"%s\","
+	    		+ "\"noPaciente\":\"%s\"}",
+	    		
+	    		GlobalConstants.SITEDS_NONCE,
+	    		GlobalConstants.SITEDS_PASSWORD, 
+	    		GlobalConstants.SITEDS_USER, 
+	    		GlobalConstants.SITEDS_ID_REMITENTE,
 	    		idReceptor,
 	    		tiDoPaciente,
 	    		nuDoPaciente,
@@ -871,17 +1898,21 @@ public class RsSiteds {
 	    		flagCG,
 	    		detFlagCG,
 	    		nuControl,
-	    		GlobalSitedsConstants.SITEDS_NU_RUC_IPRESS,
-	    		nuControlST
+	    		GlobalConstants.SITEDS_NU_RUC_IPRESS,
+	    		nuControlST,
+	    		hoTransaccion,
+	    		apPaternoPaciente,
+	    		apMaternoPaciente,
+	    		noPaciente
 	    );
 	      
 	  		try {
 	  	        System.out.println("JSON ACREDITACION: " + inputJson);
 	  			Map<String, String> headers = new HashMap<String, String>();
 	  	        headers.put("Content-Type", "application/json; charset=utf-8");
-	  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACIONß, inputJson, headers);
-	  	      responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ACREDITACION, inputJson, headers);
+	  	        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+	  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.SITEDS_AUTORIZACIONß, inputJson, headers);
+	  	      responseData = sendPostRequest(GlobalConstants.SITEDS_ACREDITACION, inputJson, headers);
 	  	        response = responseData.getResponseBody();
 	  	        System.out.println("RESPONSE ACREDITACION: " + response);
 	  			
@@ -894,7 +1925,7 @@ public class RsSiteds {
 			}
 			
 			
-		  	jsonReader = Json.createReader(new StringReader(response));
+		  	/*jsonReader = Json.createReader(new StringReader(response));
 		  	jsonObject = jsonReader.readObject();
 		  	
 		  	String trama = jsonObject.getString("peticion");
@@ -917,7 +1948,7 @@ public class RsSiteds {
 		    		queueOut,
 		    		jmsType,
 		    		property,
-		    		GlobalSitedsConstants.SITEDS_ID_REMITENTE,
+		    		GlobalConstants.SITEDS_ID_REMITENTE,
 		    		trama
 		    );
 		      
@@ -925,9 +1956,9 @@ public class RsSiteds {
 		  	        System.out.println("JSON ENVIAR RECIBIR : " + inputJson);
 		  			Map<String, String> headers = new HashMap<String, String>();
 		  	        headers.put("Content-Type", "application/json; charset=utf-8");
-		  	        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
-		  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_AUTORIZACION, inputJson, headers);
-		  	        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ENVIARRECIBIR, inputJson, headers);
+		  	        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
+		  	        //responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.SITEDS_AUTORIZACION, inputJson, headers);
+		  	        responseData = sendPostRequest(GlobalConstants.SITEDS_ENVIARRECIBIR, inputJson, headers);
 		  	        response = responseData.getResponseBody();
 		  	        System.out.println("RESPONSE ENVIAR RECIBIR: " + response);
 		  			
@@ -937,7 +1968,7 @@ public class RsSiteds {
 		  	
 				if(responseData.getStatusCode() == 500) {
 					throw UtilResponse.rsException(Response.Status.UNAUTHORIZED, "Error al consultar servicio SoliAutorizacion.");
-				}
+				}*/
 	  	
   	  return mapResponse;
     }
@@ -973,12 +2004,12 @@ public class RsSiteds {
 		        System.out.println("JSON ASEGURADO POR CODIGO: " + inputJson);
 				Map<String, String> headers = new HashMap<String, String>();
 		        headers.put("Content-Type", "application/json; charset=utf-8");
-		        headers.put("Authorization", GlobalSitedsConstants.SITEDS_TOKEN);
+		        headers.put("Authorization", GlobalConstants.SITEDS_TOKEN);
 		        System.out.println("HEADERS: " + headers);
-		        /*responseData  = HttpRequestUtil.sendRequest("POST", GlobalSitedsConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
-		        responseData = sendPostRequest(GlobalSitedsConstants.SITEDS_ASEGURADO_CODIGO, inputJson, Map.of(
+		        /*responseData  = HttpRequestUtil.sendRequest("POST", GlobalConstants.SITEDS_ASEGURADO_CODIGO, inputJson, headers);
+		        responseData = sendPostRequest(GlobalConstants.SITEDS_ASEGURADO_CODIGO, inputJson, Map.of(
 	                    "Content-Type", "application/json; charset=utf-8",
-	                    "Authorization", GlobalSitedsConstants.SITEDS_TOKEN // Reemplaza con tu token real
+	                    "Authorization", GlobalConstants.SITEDS_TOKEN // Reemplaza con tu token real
 	                ));
 		        response = responseData.getResponseBody();
 		        System.out.println("RESPONSE ASEGURADO POR CODIGO: " + response);*/
@@ -993,6 +2024,7 @@ public class RsSiteds {
 	}
     
     public static HttpResponse sendPostRequest(String urlString, String inputJson, Map<String, String> headers) throws Exception {
+    	HttpRequestUtil.disableSslValidation();
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -1054,6 +2086,21 @@ public class RsSiteds {
             }
 		}
 
+    }
+    
+    public static String limpiarTexto(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        return texto
+        	.replaceAll("[\\r\\n\\t]+", " ")  
+        	.replaceAll("^[\\-\\s\\t]+", "")
+        	.replaceAll("[\\-\\s\\t]+", " ")
+        	.replaceAll("\\s+", " ") 
+            .replaceAll("[\\r\\n]+", " ")   // elimina saltos de línea
+            .replace("\"", "")              // elimina comillas dobles
+            .replace("'", "")
+            .trim();  
     }
     
     private String timeConvertToIso(String fechaObtenida) {

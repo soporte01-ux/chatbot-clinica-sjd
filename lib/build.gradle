@@ -3,6 +3,10 @@ apply plugin: 'maven-publish'// apply plugin: 'maven'
 
 repositories {
     mavenLocal()
+    maven {
+        url 'https://repo.eclipse.org/content/groups/ee4j/'
+    }
+    mavenCentral()
 }
 
 group = 'pe.com.s2o.clinica'

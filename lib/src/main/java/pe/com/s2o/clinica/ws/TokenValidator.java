@@ -24,14 +24,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import pe.com.s2o.clinica.utils.HttpRequestUtil;
 
 
 public class TokenValidator {
 
 	//private static final String API_VALIDATION_URL = "http://localhost:8085/clinica-tokens/rs/tokenval/v1/validacion"; // Configura tu URL
-	private static final String API_VALIDATION_URL = "https://sofia.s2o.pe/agenda/rs/tokenval/v1/validacion";
-    private static final String JWT_SECRET = "asdfSFS34wfsdfsdfSDSD32dfsddDCliQSNSJ34SOWEK5354fdgdf4"; // Configura tu secreto
-    private static final String DEFAULT_TOKEN = "";
+	private static final String API_VALIDATION_URL = "https://melany.clinicarequipa.com.pe:4200/clinica-app/clinica/api/auth/token/validate";
 	
     private final Client client;
 
@@ -88,6 +87,7 @@ public class TokenValidator {
     private boolean validateTokenWithAPI(String token) {
     	String response = "";
     	try {
+    		HttpRequestUtil.disableSslValidation();
             URL url = new URL(API_VALIDATION_URL);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -95,8 +95,8 @@ public class TokenValidator {
             connection.setRequestMethod("POST");
 
             // Establecer los encabezados necesarios
-            connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");  // Si el cuerpo es texto plano
-            connection.addRequestProperty("Authorization", token);  // Usar "Bearer" si la API lo requiere
+            connection.setRequestProperty("Content-Type", "text/plain");  // Si el cuerpo es texto plano
+            connection.addRequestProperty("Authorization", "Bearer " + token);  // Usar "Bearer" si la API lo requiere
 
             // Habilitar la opción de salida para el cuerpo de la solicitud
             connection.setDoOutput(true);
@@ -128,13 +128,14 @@ public class TokenValidator {
                 response = responseBuilder.toString();
             }
 
-        	if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED && (response.contains("El token no es valido") || response.contains("El token ha expirado"))) {
-        		System.out.println("INVALID TOKEN API");
-        		return false;
-        	}
+            System.out.println("RESPONSE VALIDACIÓN TOKEN: " + response);
+            
+            if(responseCode == HttpURLConnection.HTTP_OK && response.contains("Token válido")) {            	
+            	return true;
+            }
+            
+            return false;
         	
-        	return true;
-
         } catch (Exception e) {
             e.printStackTrace();
             response = "{\"error\": \"Error al obtener los datos del paciente\"}";

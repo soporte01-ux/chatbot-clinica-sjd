@@ -1,0 +1,51 @@
+{
+  "module": "produccion",
+  "whatsapp_verify_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE3MzY4MzU2MTgsImV4cCI6MTc2ODM3MTYxOCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.NGXtephaYXdLxxPHHKK1GTvX9xF0d1E3YWyYCiLN4D0",
+  "siteds_token": "1tFTQwISn4c=",
+  "config": [
+    {
+      "type": "produccion",
+      "frontend": "https://pagos.sjd.pe",
+      "backend": "https://sofia.sjd.pe/clinica-citas-desarrollo",
+      "whatsapp_bot": {
+        "bot": "https://webws.sjd.pe/clinica-sjd",
+        "phone_id": "450448438159174",
+        "access_token": "EAALO6qBZBFWABPh4dDvyTZAatlsjq7ZAHgM2Kj9N0YOHUQWiqRuYiwljrwXpc4EAEehWCvTL0n1PG3vXxeGvVPcPSqUX2DZAyKlv7llBDaZBI8emZCazOSIJnIpAJeewMXIkaYrZBmmaZBdsecyxaP106xfxF485q340co3EJdVH12JMwK9zc6Y2trUYQFeI1zTz4gZDZD"
+      },
+      "siteds": {
+        "api": "http://200.39.148.126:8180",
+        "user": "UP_SANJUANDEDIOSAQP",
+        "password": "TdX6SU3KS8fAC/U8iask0BmSp9t+FzAWzo/iSCDieNTPT8rocCjgljtmQJUO+RkXPvZs0rI+UFP+wTPTVDpJafAdPijA3pfSYqBg121CptW+rqVhD1JruI30z9BG5RY17NS3YbiX9S8TaS3kIurW4c69nn4oDPEQmKZgYXLMVY4=|86l049085slsaas24285a75us49513us35ssuussus3a6267a463s9a4auuu69u9|ZWevEuVNDQ4zGEtRTgcKZ7qoK4ipq7F/4Hmcua1URyM=",
+        "nonce": "UzjoeaTqa2iZnJtBksmQ1g==",
+        "no_ipress": "CLINICA SAN JUAN DE DIOS",
+        "type_doc_ipress": "6",
+        "nu_ruc_ipress": "20162580672",
+        "ca_ipress": "2",
+        "id_remitente": "00015730",
+        "admition": "29288258"
+      }
+    },
+    {
+      "type": "desarrollo",
+      "frontend": "http://localhost:4200",
+      "backend": "https://sofia.sjd.pe/clinica-citas-desarrollo",
+      "whatsapp_bot": {
+        "bot": "http://localhost:8085/lib",
+        "phone_id": "463180813536065",
+        "access_token": "EAAHAX9FaMMoBO7aUq7V6HsZC3gkHMl5BxC9NiTxon57LyO3IzrSG6xp9jUUQ4PWgGlIjb5UllybHXmiZCq8TKdiexgLssxP81HQo0kxNea9f6Sd3SJUZAIT4ctFgqFPZAtGgcvndM4FBu3rdkPkZBj6VQwgEqTei8gTkqCvCmrZC7NtxIhCURf0j5qgDUPmrtTdQZDZD"
+      },
+      "siteds": {
+        "api": "http://200.39.148.126:8180",
+        "user": "UP_SANJUANDEDIOSAQP",
+        "password": "TdX6SU3KS8fAC/U8iask0BmSp9t+FzAWzo/iSCDieNTPT8rocCjgljtmQJUO+RkXPvZs0rI+UFP+wTPTVDpJafAdPijA3pfSYqBg121CptW+rqVhD1JruI30z9BG5RY17NS3YbiX9S8TaS3kIurW4c69nn4oDPEQmKZgYXLMVY4=|86l049085slsaas24285a75us49513us35ssuussus3a6267a463s9a4auuu69u9|ZWevEuVNDQ4zGEtRTgcKZ7qoK4ipq7F/4Hmcua1URyM=",
+        "nonce": "UzjoeaTqa2iZnJtBksmQ1g==",
+        "no_ipress": "CLINICA SAN JUAN DE DIOS",
+        "type_doc_ipress": "6",
+        "nu_ruc_ipress": "20162580672",
+        "ca_ipress": "2",
+        "id_remitente": "00015730",
+        "admition": "29288258"
+      }
+    }
+  ]
+}
